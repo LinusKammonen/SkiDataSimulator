@@ -11,6 +11,18 @@
             <Button x:Name="btnSimulateSeason" Content="Simulera säsong" Width="150" Margin="5" Click="OnButtonSimulateSeasonClick"/>
             <Button x:Name="btnSimulateDay" Content="Simulera dag" Width="150" Margin="5" Click="OnButtonSimulateDayClick"/>
         </StackPanel>
+        <TextBlock HorizontalAlignment="Left" Margin="637,19,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="138"><Run Language="sv-se" Text="Registrera skidåkare"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="533,49,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="förnamn:"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="533,76,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="efternamn"/><Run Text=":"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="533,104,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="email:"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="533,131,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="användarnamn"/><Run Language="sv-se" Text=":"/></TextBlock>
+        <TextBlock HorizontalAlignment="Left" Margin="533,158,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="bild (valfritt):"/></TextBlock>
+        <TextBox x:Name="txtFirstName" HorizontalAlignment="Left" Margin="637,49,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtLastName" HorizontalAlignment="Left" Margin="637,74,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="637,103,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtUsername" HorizontalAlignment="Left" Margin="637,131,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <TextBox x:Name="txtImageUrl" HorizontalAlignment="Left" Margin="637,158,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+        <Button x:Name="btnRegister" Content="Registrera" HorizontalAlignment="Left" Margin="637,187,0,0" VerticalAlignment="Top" Width="120" Click="btnRegister_Click"/>
 
 
     </Grid>

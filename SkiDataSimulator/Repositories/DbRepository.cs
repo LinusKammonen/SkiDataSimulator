@@ -1,9 +1,16 @@
 ﻿using SkidataWpf.Models;
-
+using Npgsql;
+using SkiDataSimulator.Models;
 namespace SkiDataSimulator.Repositories;
 
 public class DbRepository
 {
+    public readonly NpgsqlDataSource _dataSource;
+
+    public DbRepository(NpgsqlDataSource dataSource)
+    {
+        _dataSource = dataSource;
+    }
     public async Task<Lift> GetRandomSkiLiftFromResortAsync(Resort resort)
     {
         /* Här ska ni hämta en slumpmässig lift som skidåkaren åker i en viss anläggning
@@ -14,7 +21,25 @@ public class DbRepository
 
         throw new NotImplementedException();
     }
+    public async Task<bool> RegisterSkier(Skier skier)
+    {
+        string query = "insert into skier" +
+                       "(firstname, lastname, email, username, image_url)" +
+                       " values (@firstname, @lastname, @email, @username, @image_url)";
 
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("firstname", skier.Firstname);
+        command.Parameters.AddWithValue("lastname", skier.Lastname);
+        command.Parameters.AddWithValue("email", skier.Email);
+        command.Parameters.AddWithValue("username", skier.Username);
+        command.Parameters.AddWithValue("image_url", skier.Image_url);
+
+        var result = await command.ExecuteNonQueryAsync();
+
+        return result == 1;
+
+    }
     public async Task<List<SkiPass>> GetRandomSkiPassesAsync(int numberOfSkipasses)
     {
         /* Om ni vill simulera att säg 20 skidåkare åker en dag i alla anläggningar

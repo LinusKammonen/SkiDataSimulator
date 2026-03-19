@@ -1,6 +1,8 @@
-﻿using SkiDataSimulator.Repositories;
+﻿using SkiDataSimulator.Models;
+using SkiDataSimulator.Repositories;
 using SkiDataSimulator.Simulation;
 using SkidataWpf.Models;
+using System.Threading.Tasks;
 using System.Windows;
 
 namespace SkiDataSimulator;
@@ -17,7 +19,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        _dbRepository = new DbRepository();
+        _dbRepository = new DbRepository(App.DataSource);
         _simulator = new SkiSimulator(_dbRepository);
     }
 
@@ -72,5 +74,29 @@ public partial class MainWindow : Window
         MessageBox.Show(message, title, MessageBoxButton.OK, icon);
     }
 
+    private async void btnRegister_Click(object sender, RoutedEventArgs e)
+    {
+        string firstname = txtFirstName.Text;
+        string lastname = txtLastName.Text;
+        string email = txtEmail.Text;
+        string username = txtUsername.Text;
+        string image = txtImageUrl.Text;
 
+        Skier skier = new Skier
+        {
+            Firstname = firstname,
+            Lastname = lastname,
+            Email = email,
+            Username = username,
+            Image_url = image
+        };
+        bool svar = await _dbRepository.RegisterSkier(skier);
+        MessageBox.Show($"du har registrerat {skier.Firstname} {skier.Lastname}");
+
+        txtFirstName.Text = string.Empty;
+        txtLastName.Text = string.Empty;
+        txtEmail.Text = string.Empty;
+        txtUsername.Text = string.Empty;
+        txtImageUrl.Text = string.Empty;
+    }
 }
