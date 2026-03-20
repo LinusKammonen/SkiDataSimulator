@@ -4,6 +4,7 @@ using SkiDataSimulator.Simulation;
 using SkidataWpf.Models;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace SkiDataSimulator;
 
@@ -15,6 +16,7 @@ public partial class MainWindow : Window
     private const int SimulatedSkierCount = 20;
     private readonly DbRepository _dbRepository;
     private readonly SkiSimulator _simulator;
+    Skier skiers = new Skier();
 
     public MainWindow()
     {
@@ -98,5 +100,38 @@ public partial class MainWindow : Window
         txtEmail.Text = string.Empty;
         txtUsername.Text = string.Empty;
         txtImageUrl.Text = string.Empty;
+    }
+    private async void FillComboBox<T>(ComboBox cb, List<T> list)
+    {
+        cb.ItemsSource = list;
+        cb.DisplayMemberPath = "FullName"; 
+    }
+
+    private async void btnSearch_Click(object sender, RoutedEventArgs e)
+    {
+        string search = txtSearchSkier.Text;
+        List<Skier> skiers = await _dbRepository.SearchSkier(search);
+        FillComboBox<Skier>(cbSkiers, skiers);
+    }
+
+    private async void cbSkiers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        //nu bör vi på något sätt identifiera det valda objektet kollar i labb 2
+        Skier? skier = cbSkiers.SelectedItem as Skier;
+        if (skier is null) return;
+
+        SkierDetailedSeason detailedskier = await _dbRepository.GetSkierDetailedSeason(skier.Id);
+        
+
+        if (detailedskier is null)
+        {
+            MessageBox.Show("Finns ingen data för åkaren");
+        }
+        else
+            MessageBox.Show($"Förnamn: {detailedskier.Firstname} Efternamn: {detailedskier.Lastname}" +
+                $"Slutdatum: {detailedskier.Enddate} totalt antal åk för säsongen: {detailedskier.TotalSeasonRuns} " +
+                $"Säsong: {detailedskier.CurrentSeason} totalt antal skiddagar för säsongen: {detailedskier.TotalSeasonDays}");
+                
+
     }
 }

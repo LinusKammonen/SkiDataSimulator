@@ -1,6 +1,7 @@
-﻿using SkidataWpf.Models;
-using Npgsql;
+﻿using Npgsql;
 using SkiDataSimulator.Models;
+using SkidataWpf.Models;
+using System.Xml.Linq;
 namespace SkiDataSimulator.Repositories;
 
 public class DbRepository
@@ -21,6 +22,88 @@ public class DbRepository
 
         throw new NotImplementedException();
     }
+    public async Task<SkierDetailedSeason?> GetSkierDetailedSeason(int id)
+    {
+        string query = "SELECT skier.id as skier_id, firstname, lastname," +
+                        " ski_pass.valid_to as slutdatum, COUNT(ski_run.id) as total_season_runs, " +
+                        "season.name as season, COUNT(distinct DATE_PART('day', ski_run.timestamp)) " +
+                        "as total_season_days FROM skier left JOIN ski_pass ON ski_pass.skier_id = skier.id " +
+                        "left JOIN ski_run ON ski_run.ski_pass_id = ski_pass.id left JOIN season ON ski_run.season_id" +
+                        " = season.id WHERE skier.id = @id AND DATE_PART('year', season.end_date) = DATE_PART('year', CURRENT_DATE) " +
+                        "GROUP BY skier.id, ski_pass.id, season.id";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("id", id);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("skier_id"),
+            Firstname = reader.GetOrdinal("firstname"),
+            Lastname = reader.GetOrdinal("lastname"),
+            Enddate = reader.GetOrdinal("slutdatum"),
+            TotalSeasonRuns = reader.GetOrdinal("total_season_runs"),
+            CurrentSeason = reader.GetOrdinal("season"),
+            TotalSeasonDays = ("total_season_days")
+        };
+
+        while (await reader.ReadAsync())
+        {
+            SkierDetailedSeason skier = new SkierDetailedSeason
+            {
+                Id = reader.GetFieldValue<int?>(ordinals.Id),
+                Firstname = reader.GetFieldValue<string?>(ordinals.Firstname),
+                Lastname = reader.GetFieldValue<string?>(ordinals.Lastname),
+                Enddate = reader.GetFieldValue<DateOnly?>(ordinals.Enddate),
+                TotalSeasonRuns = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns),
+                CurrentSeason = reader.GetFieldValue<string?>(ordinals.CurrentSeason),
+                TotalSeasonDays = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns)
+            };
+            return skier;
+        }
+        return null;
+
+    }
+    public async Task<List<Skier>> SearchSkier(string name)
+    {
+        string query = "SELECT id, firstname, lastname, email, username, image_url FROM skier" +
+                       " WHERE firstname ILIKE @name or lastname ILIKE @name";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("name", $"%{name}%");
+        
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Firstname = reader.GetOrdinal("firstname"),
+            Lastname = reader.GetOrdinal("lastname"),
+            Email = reader.GetOrdinal("email"),
+            Username = reader.GetOrdinal("username"),
+            Image_url = reader.GetOrdinal("image_url")
+        };
+
+        List<Skier> skiers = [];
+
+        while (await reader.ReadAsync())
+        {
+            Skier skier = new Skier
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Firstname = reader.GetFieldValue<string>(ordinals.Firstname),
+                Lastname = reader.GetFieldValue<string>(ordinals.Lastname),
+                Email = reader.GetFieldValue<string>(ordinals.Email),
+                Username = reader.GetFieldValue<string>(ordinals.Username),
+                Image_url = reader.IsDBNull(ordinals.Image_url) ? null : reader.GetFieldValue<string?>(ordinals.Image_url)
+            };
+            skiers.Add(skier);
+        }
+        return skiers;
+    } 
     public async Task<bool> RegisterSkier(Skier skier)
     {
         string query = "insert into skier" +
