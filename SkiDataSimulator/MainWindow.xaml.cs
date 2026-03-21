@@ -16,13 +16,14 @@ public partial class MainWindow : Window
     private const int SimulatedSkierCount = 20;
     private readonly DbRepository _dbRepository;
     private readonly SkiSimulator _simulator;
-    Skier skiers = new Skier();
 
     public MainWindow()
     {
         InitializeComponent();
         _dbRepository = new DbRepository(App.DataSource);
         _simulator = new SkiSimulator(_dbRepository);
+        Register.Visibility = Visibility.Hidden;
+        searchfunction.Visibility = Visibility.Hidden;
     }
 
 
@@ -101,37 +102,77 @@ public partial class MainWindow : Window
         txtUsername.Text = string.Empty;
         txtImageUrl.Text = string.Empty;
     }
-    private async void FillComboBox<T>(ComboBox cb, List<T> list)
+    private async void FillListbox<T>(ListBox lb, List<T> list)
     {
-        cb.ItemsSource = list;
-        cb.DisplayMemberPath = "FullName"; 
+        lb.ItemsSource = list;
+        lb.DisplayMemberPath = "FullName"; 
     }
 
     private async void btnSearch_Click(object sender, RoutedEventArgs e)
     {
         string search = txtSearchSkier.Text;
         List<Skier> skiers = await _dbRepository.SearchSkier(search);
-        FillComboBox<Skier>(cbSkiers, skiers);
+        FillListbox<Skier>(lstskiers, skiers);
     }
 
-    private async void cbSkiers_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    
+
+    //källa för att använda flera sidor https://www.youtube.com/watch?v=8rUuZSFRncc 
+    private void reset_grids()
+    {
+        Register.Visibility = Visibility.Hidden;
+        searchfunction.Visibility = Visibility.Hidden;
+    }
+
+    private void Button_Click_1(object sender, RoutedEventArgs e)
+    {
+        reset_grids();
+        Register.Visibility = Visibility.Visible;
+    }
+
+    private void Button_Click(object sender, RoutedEventArgs e)
+    {
+        reset_grids();
+        searchfunction.Visibility = Visibility.Visible;
+    }
+
+    private async void ListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         //nu bör vi på något sätt identifiera det valda objektet kollar i labb 2
-        Skier? skier = cbSkiers.SelectedItem as Skier;
+        Skier? skier = lstskiers.SelectedItem as Skier;
         if (skier is null) return;
 
         SkierDetailedSeason detailedskier = await _dbRepository.GetSkierDetailedSeason(skier.Id);
-        
+        SkierLeaderboardDetails leaderboardDetails = await _dbRepository.GetLeaderboardDetails(skier.Id);
+
+        txtUser.Text = skier.Username;
+        txtFirst.Text = skier.Firstname;
+        txtLast.Text = skier.Lastname;
+
+        if (leaderboardDetails is null)
+        {
+            txtDrop.Text = "0";
+            txtCountries.Text = "0";
+        }
+        else
+        {
+            txtDrop.Text = leaderboardDetails.TotalVerticalDrop.ToString();
+            txtCountries.Text = leaderboardDetails.TotalCountries.ToString();
+        }
 
         if (detailedskier is null)
         {
-            MessageBox.Show("Finns ingen data för åkaren");
+            txtSeason.Text = "ingen data för denna säsong";
+            txtEndDate.Text = "ingen data för denna säsong";
+            txtRuns.Text = "ingen data för denna säsong";
+            txtDays.Text = "ingen data för denna säsong";
         }
         else
-            MessageBox.Show($"Förnamn: {detailedskier.Firstname} Efternamn: {detailedskier.Lastname}" +
-                $"Slutdatum: {detailedskier.Enddate} totalt antal åk för säsongen: {detailedskier.TotalSeasonRuns} " +
-                $"Säsong: {detailedskier.CurrentSeason} totalt antal skiddagar för säsongen: {detailedskier.TotalSeasonDays}");
-                
-
+        {
+            txtSeason.Text = detailedskier.CurrentSeason;
+            txtEndDate.Text = detailedskier.Enddate.ToString();
+            txtRuns.Text = detailedskier.TotalSeasonRuns.ToString();
+            txtDays.Text = detailedskier.TotalSeasonDays.ToString();
+        }
     }
 }

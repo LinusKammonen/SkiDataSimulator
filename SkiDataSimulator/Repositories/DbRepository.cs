@@ -24,7 +24,9 @@ public class DbRepository
     }
     public async Task<SkierDetailedSeason?> GetSkierDetailedSeason(int id)
     {
-        string query = "SELECT skier.id as skier_id, firstname, lastname," +
+        try
+        {
+            string query = "SELECT skier.id as skier_id, firstname, lastname," +
                         " ski_pass.valid_to as slutdatum, COUNT(ski_run.id) as total_season_runs, " +
                         "season.name as season, COUNT(distinct DATE_PART('day', ski_run.timestamp)) " +
                         "as total_season_days FROM skier left JOIN ski_pass ON ski_pass.skier_id = skier.id " +
@@ -32,38 +34,80 @@ public class DbRepository
                         " = season.id WHERE skier.id = @id AND DATE_PART('year', season.end_date) = DATE_PART('year', CURRENT_DATE) " +
                         "GROUP BY skier.id, ski_pass.id, season.id";
 
-        await using var command = _dataSource.CreateCommand(query);
+            await using var command = _dataSource.CreateCommand(query);
 
-        command.Parameters.AddWithValue("id", id);
+            command.Parameters.AddWithValue("id", id);
 
-        await using var reader = await command.ExecuteReaderAsync();
+            await using var reader = await command.ExecuteReaderAsync();
 
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("skier_id"),
-            Firstname = reader.GetOrdinal("firstname"),
-            Lastname = reader.GetOrdinal("lastname"),
-            Enddate = reader.GetOrdinal("slutdatum"),
-            TotalSeasonRuns = reader.GetOrdinal("total_season_runs"),
-            CurrentSeason = reader.GetOrdinal("season"),
-            TotalSeasonDays = ("total_season_days")
-        };
-
-        while (await reader.ReadAsync())
-        {
-            SkierDetailedSeason skier = new SkierDetailedSeason
+            var ordinals = new
             {
-                Id = reader.GetFieldValue<int?>(ordinals.Id),
-                Firstname = reader.GetFieldValue<string?>(ordinals.Firstname),
-                Lastname = reader.GetFieldValue<string?>(ordinals.Lastname),
-                Enddate = reader.GetFieldValue<DateOnly?>(ordinals.Enddate),
-                TotalSeasonRuns = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns),
-                CurrentSeason = reader.GetFieldValue<string?>(ordinals.CurrentSeason),
-                TotalSeasonDays = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns)
+                Enddate = reader.GetOrdinal("slutdatum"),
+                TotalSeasonRuns = reader.GetOrdinal("total_season_runs"),
+                CurrentSeason = reader.GetOrdinal("season"),
+                TotalSeasonDays = ("total_season_days")
             };
-            return skier;
+
+            while (await reader.ReadAsync())
+            {
+                SkierDetailedSeason skier = new SkierDetailedSeason
+                {
+                    Enddate = reader.GetFieldValue<DateOnly?>(ordinals.Enddate),
+                    TotalSeasonRuns = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns),
+                    CurrentSeason = reader.GetFieldValue<string?>(ordinals.CurrentSeason),
+                    TotalSeasonDays = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns)
+                };
+                return skier;
+            }
+            return null;
         }
-        return null;
+        catch (PostgresException exception)
+        {
+
+            throw;
+        }
+
+    }
+    public async Task<SkierLeaderboardDetails> GetLeaderboardDetails(int id)
+    {
+        try
+        {
+            string query = "SELECT firstname, lastname, SUM(lift.vertical_drop) as total_vertical_drop," +
+                        "  COUNT(distinct country.id) as total_countries from skier JOIN ski_pass ON " +
+                        "ski_pass.skier_id = skier.id JOIN ski_run ON ski_run.ski_pass_id = ski_pass.id " +
+                        "JOIN lift ON ski_run.lift_id = lift.id JOIN resort ON resort.id = lift.resort_id " +
+                        "JOIN destination ON resort.destination_id = destination.id JOIN country " +
+                        "ON destination.country_id = country.id WHERE skier.id = @id GROUP BY skier.id";
+
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("id", id);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                TotalVerticalDrop = reader.GetOrdinal("total_vertical_drop"),
+                TotalCountries = reader.GetOrdinal("total_countries")
+            };
+            while (await reader.ReadAsync())
+            {
+                SkierLeaderboardDetails skier = new SkierLeaderboardDetails
+                {
+                    TotalVerticalDrop = reader.GetFieldValue<int?>(ordinals.TotalVerticalDrop),
+                    TotalCountries = reader.GetFieldValue<int?>(ordinals.TotalCountries)
+                };
+                return skier;
+            }
+            return null;
+            
+        }
+        catch (PostgresException exception)
+        {
+
+            throw;
+        }
 
     }
     public async Task<List<Skier>> SearchSkier(string name)
