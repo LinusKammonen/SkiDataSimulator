@@ -167,6 +167,88 @@ public class DbRepository
         return result == 1;
 
     }
+    public async Task<Skier> FindSkierByUsername(string username)
+    {
+        string query = "SELECT * FROM skier WHERE username = @username";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("username", username);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Firstname = reader.GetOrdinal("firstname"),
+            Lastname = reader.GetOrdinal("lastname"),
+            Email = reader.GetOrdinal("email"),
+            Username = reader.GetOrdinal("username"),
+            Image_url = reader.GetOrdinal("image_url")
+        };
+        while (await reader.ReadAsync())
+        {
+            Skier skier = new Skier
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Firstname = reader.GetFieldValue<string>(ordinals.Firstname),
+                Lastname = reader.GetFieldValue<string>(ordinals.Lastname),
+                Email = reader.GetFieldValue<string>(ordinals.Email),
+                Image_url = reader.IsDBNull(ordinals.Image_url) ? null : reader.GetFieldValue<string?>(ordinals.Image_url)
+            };
+            return skier;
+        }
+        return null;
+
+    }
+    public async Task<bool> BuySkiPass(SkiPass skipass)
+    {
+        // https://stackoverflow.com/questions/6817266/how-to-get-the-current-date-without-the-time 
+        //översätta datetime till dateonly 
+        string query = "INSERT INTO ski_pass(card_number, skier_id, valid_from, valid_to, destination_id) " +
+                       "VALUES (@card_number, @skier_id, @valid_from, @valid_to, @destination_id)";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("card_number", skipass.CardNumber);
+        command.Parameters.AddWithValue("skier_id", skipass.SkierId);
+        command.Parameters.AddWithValue("valid_from", skipass.ValidFrom);
+        command.Parameters.AddWithValue("valid_to", skipass.ValidTo);
+        command.Parameters.AddWithValue("detination_id", skipass.DestinationId);
+
+        var result = await command.ExecuteNonQueryAsync();
+
+        return result == 1; 
+    }
+    public async Task<List<Destination>> GetDestinations()
+    {
+        string query = "SELECT * FROM destination";
+
+        await using var command = _dataSource.CreateCommand(query);
+        await using var reader = await command.ExecuteReaderAsync();
+
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Name = reader.GetOrdinal("name"),
+            CountryId = reader.GetOrdinal("country_id"), 
+        };
+
+        List<Destination> destinations = [];
+        while (await reader.ReadAsync())
+        {
+            Destination destination = new Destination
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.IsDBNull(ordinals.Name) ? null : reader.GetFieldValue<string?>(ordinals.Name),
+                CountryId = reader.GetFieldValue<int>(ordinals.Id)
+            };
+            destinations.Add(destination);
+        }
+        return destinations;
+
+    }
     public async Task<List<SkiPass>> GetRandomSkiPassesAsync(int numberOfSkipasses)
     {
         /* Om ni vill simulera att säg 20 skidåkare åker en dag i alla anläggningar
