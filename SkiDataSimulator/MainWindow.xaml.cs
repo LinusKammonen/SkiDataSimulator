@@ -27,6 +27,7 @@ public partial class MainWindow : Window
         Register.Visibility = Visibility.Hidden;
         Searchfunction.Visibility = Visibility.Hidden;
         Liftkort.Visibility = Visibility.Hidden;
+        Rides.Visibility = Visibility.Hidden;
        
     }
 
@@ -130,6 +131,7 @@ public partial class MainWindow : Window
         Register.Visibility = Visibility.Hidden;
         Searchfunction.Visibility = Visibility.Hidden;
         Liftkort.Visibility = Visibility.Hidden;
+        Rides.Visibility = Visibility.Hidden;
     }
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -199,17 +201,18 @@ public partial class MainWindow : Window
             //kalender https://www.youtube.com/watch?v=gvyWHB3i930
 
             // För DateTime.Today https://stackoverflow.com/questions/6817266/how-to-get-the-current-date-without-the-time
-
+            // För nullable DateTime https://stackoverflow.com/questions/72118892/how-to-convert-nullable-system-datetime-to-system-dateonly
+            
             SkiPass skiPass = new SkiPass
             {
-                CardNumber = txtCardNumber.Text,
+                CardNumber = int.Parse(txtCardNumber.Text),
                 SkierId = skier.Id,
                 ValidFrom = DateOnly.Parse(DateTime.Today.ToString("D")),
-                ValidTo = DateOnly.Parse(calendarBox.SelectedDate.ToString("D")),
+                ValidTo = DateOnly.Parse(calendarBox.SelectedDate?.ToString("D")),
                 DestinationId = destination.Id
             };
 
-            if (skiPass.ValidTo != null)
+            if (skiPass.ValidTo != null && skiPass.DestinationId != null)
             {
                 bool svar = await _dbRepository.BuySkiPass(skiPass);
                 MessageBox.Show($"{svar}");
@@ -236,5 +239,78 @@ public partial class MainWindow : Window
     private async void cbDestination_SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         
+    }
+
+    private async void btnRides_Click(object sender, RoutedEventArgs e)
+    {
+        reset_grids();
+        Rides.Visibility = Visibility.Visible;
+        List<Destination> destinations = await _dbRepository.GetDestinations();
+        FillCombobox<Destination>(cbRunDestination, destinations);
+    }
+
+    private async void cbRunDestination_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        Destination? destination = cbRunDestination.SelectedItem as Destination;
+        List<Resort> resorts = await _dbRepository.FindResortByDestinationID(destination.Id);
+        FillCombobox<Resort>(cbRunResort, resorts);
+    }
+
+    private async void cbRunResort_SelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        Resort? resort = cbRunResort.SelectedItem as Resort;
+        if (resort != null)
+        {
+            List<Lift> lifts = await _dbRepository.FindLiftsByResortId(resort.Id);
+            FillCombobox<Lift>(cbLifts, lifts);
+        }
+        else return;
+    }
+
+    private async void btnRegisterRide_Click(object sender, RoutedEventArgs e)
+    {
+        //Nu saknar vi bara kontrollerna, destinationId och att kortet är giltigt, tänker att vi gör en select och sedan typ (om det är null så kör vi inte inserten).
+        Destination? destination = cbRunDestination.SelectedItem as Destination;
+        Resort? resort = cbRunResort.SelectedItem as Resort;
+        Lift? lift = cbLifts.SelectedItem as Lift;
+        Season season = await _dbRepository.GetSeasonByTime(DateTime.Today);
+        if (txtCardNumber.Text != string.Empty && destination != null && resort != null && lift != null && season != null)
+        {
+            SkiPass skipass = await _dbRepository.GetSkipassByCardnumber(int.Parse(txtRunCardNumber.Text));
+
+            SkiRun skirun = new SkiRun
+            {
+                SkipassId = skipass.Id,
+                LiftId = lift.Id,
+                SeasonId = season.Id,
+                Timestamp = DateTime.Now
+            };
+
+            //För datumen https://stackoverflow.com/questions/5672862/check-if-datetime-instance-falls-in-between-other-two-datetime-objects
+            if (destination.Id != skipass.DestinationId && DateOnly.Parse(skirun.Timestamp.ToString("D")) < skipass.ValidTo && DateOnly.Parse(skirun.Timestamp.ToString("D")) > skipass.ValidFrom)
+            {
+                MessageBox.Show("Du saknar pass för denna destination");
+                return;
+            }
+            else if (DateOnly.Parse(skirun.Timestamp.ToString("D")) > skipass.ValidTo || skipass == null)
+            {
+                MessageBox.Show("Du saknar giltigt liftkort");
+                return;
+            }
+            else if (destination.Id == skipass.DestinationId && DateOnly.Parse(skirun.Timestamp.ToString("D")) < skipass.ValidTo && DateOnly.Parse(skirun.Timestamp.ToString("D")) > skipass.ValidFrom)
+            {
+                bool svar = await _dbRepository.RegisterRideByLiftId(skirun);
+
+                if (svar == true) { MessageBox.Show($"Du har registrerat åk i {lift.Name}"); }
+
+            }
+        }
+        else 
+        {
+            MessageBox.Show("Du har lämnat fält tomma");
+            return;
+
+        }
+
     }
 }

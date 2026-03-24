@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using SkiDataSimulator.Models;
 using SkidataWpf.Models;
+using System.Windows.Controls.Primitives;
 using System.Xml.Linq;
 namespace SkiDataSimulator.Repositories;
 
@@ -68,6 +69,50 @@ public class DbRepository
         }
 
     }
+    public async Task<SkiPass> GetSkipassByCardnumber(int number)
+    {
+        try
+        {
+            string query = "Select * from ski_pass WHERE card_number = @number";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("number", number);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                CardNumber = reader.GetOrdinal("card_number"),
+                SkierId = reader.GetOrdinal("skier_id"),
+                ValidFrom = reader.GetOrdinal("valid_from"),
+                ValidTo = reader.GetOrdinal("valid_to"),
+                DestinationId = reader.GetOrdinal("destination_id")
+            };
+
+            while (await reader.ReadAsync())
+            {
+                SkiPass skipass = new SkiPass
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    CardNumber = reader.GetFieldValue<int>(ordinals.CardNumber),
+                    SkierId = reader.GetFieldValue<int>(ordinals.SkierId),
+                    ValidFrom = reader.GetFieldValue<DateOnly>(ordinals.ValidFrom),
+                    ValidTo = reader.GetFieldValue<DateOnly?>(ordinals.ValidTo),
+                    DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+                };
+                return skipass;
+            }
+            return null;
+        }
+        catch (PostgresException exception)
+        {
+
+            throw;
+        }
+
+    }
     public async Task<SkierLeaderboardDetails> GetLeaderboardDetails(int id)
     {
         try
@@ -112,41 +157,50 @@ public class DbRepository
     }
     public async Task<List<Skier>> SearchSkier(string name)
     {
-        string query = "SELECT id, firstname, lastname, email, username, image_url FROM skier" +
+        try
+        {
+            string query = "SELECT id, firstname, lastname, email, username, image_url FROM skier" +
                        " WHERE firstname ILIKE @name or lastname ILIKE @name";
 
-        await using var command = _dataSource.CreateCommand(query);
+            await using var command = _dataSource.CreateCommand(query);
 
-        command.Parameters.AddWithValue("name", $"%{name}%");
-        
-        await using var reader = await command.ExecuteReaderAsync();
+            command.Parameters.AddWithValue("name", $"%{name}%");
 
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("id"),
-            Firstname = reader.GetOrdinal("firstname"),
-            Lastname = reader.GetOrdinal("lastname"),
-            Email = reader.GetOrdinal("email"),
-            Username = reader.GetOrdinal("username"),
-            Image_url = reader.GetOrdinal("image_url")
-        };
+            await using var reader = await command.ExecuteReaderAsync();
 
-        List<Skier> skiers = [];
-
-        while (await reader.ReadAsync())
-        {
-            Skier skier = new Skier
+            var ordinals = new
             {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Firstname = reader.GetFieldValue<string>(ordinals.Firstname),
-                Lastname = reader.GetFieldValue<string>(ordinals.Lastname),
-                Email = reader.GetFieldValue<string>(ordinals.Email),
-                Username = reader.GetFieldValue<string>(ordinals.Username),
-                Image_url = reader.IsDBNull(ordinals.Image_url) ? null : reader.GetFieldValue<string?>(ordinals.Image_url)
+                Id = reader.GetOrdinal("id"),
+                Firstname = reader.GetOrdinal("firstname"),
+                Lastname = reader.GetOrdinal("lastname"),
+                Email = reader.GetOrdinal("email"),
+                Username = reader.GetOrdinal("username"),
+                Image_url = reader.GetOrdinal("image_url")
             };
-            skiers.Add(skier);
+
+            List<Skier> skiers = [];
+
+            while (await reader.ReadAsync())
+            {
+                Skier skier = new Skier
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Firstname = reader.GetFieldValue<string>(ordinals.Firstname),
+                    Lastname = reader.GetFieldValue<string>(ordinals.Lastname),
+                    Email = reader.GetFieldValue<string>(ordinals.Email),
+                    Username = reader.GetFieldValue<string>(ordinals.Username),
+                    Image_url = reader.IsDBNull(ordinals.Image_url) ? null : reader.GetFieldValue<string?>(ordinals.Image_url)
+                };
+                skiers.Add(skier);
+            }
+            return skiers;
         }
-        return skiers;
+        catch (PostgresException exception)
+        {
+
+            throw;
+        }
+
     } 
     public async Task<bool> RegisterSkier(Skier skier)
     {
@@ -161,6 +215,139 @@ public class DbRepository
         command.Parameters.AddWithValue("email", skier.Email);
         command.Parameters.AddWithValue("username", skier.Username);
         command.Parameters.AddWithValue("image_url", skier.Image_url);
+
+        var result = await command.ExecuteNonQueryAsync();
+
+        return result == 1;
+
+    }
+    public async Task<List<Lift>> FindLiftsByResortId(int id)
+    {
+        try
+        {
+            string query = "SELECT * FROM lift WHERE resort_id = @resort_id";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("resort_id", id);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                VerticalDrop = reader.GetOrdinal("vertical_drop"),
+                ResortId = reader.GetOrdinal("resort_id"),
+                LiftTypeId = reader.GetOrdinal("lift_type_id")
+            };
+
+            List<Lift> lifts = [];
+
+            while (await reader.ReadAsync())
+            {
+                Lift lift = new Lift
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string>(ordinals.Name),
+                    VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
+                    ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
+                    LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+                };
+                lifts.Add(lift);
+            }
+            return lifts;
+        }
+        catch (PostgresException exception)
+        {
+
+            throw;
+        }
+
+
+    }
+    public async Task<List<Resort>> FindResortByDestinationID(int id)
+    {
+        try
+        {
+            string query = "SELECT * FROM resort WHERE destination_id = @destination_id";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("destination_id", id);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                Destination_id = reader.GetOrdinal("destination_id"),
+            };
+
+            List<Resort> resorts = [];
+
+            while (await reader.ReadAsync())
+            {
+                Resort resort = new Resort
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string>(ordinals.Name),
+                    DestinationId = reader.GetFieldValue<int>(ordinals.Destination_id)
+                };
+                resorts.Add(resort);
+            }
+            return resorts;
+        }
+        catch (PostgresException exception)
+        {
+
+            throw;
+        }
+
+    }
+    public async Task<Season> GetSeasonByTime(DateTime time)
+    {
+        string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("date", time);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            StartDate = reader.GetOrdinal("start_date"),
+            EndDate = reader.GetOrdinal("end_date"),
+            Name = reader.GetOrdinal("name")
+        };
+
+        while (await reader.ReadAsync())
+        {
+            Season season = new Season
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.GetFieldValue<string?>(ordinals.Name),
+                StartDate = reader.GetFieldValue<DateTime>(ordinals.StartDate),
+                EndDate = reader.GetFieldValue<DateTime>(ordinals.EndDate)
+            };
+            return season;
+        }
+        return null;
+
+    }
+    public async Task<bool> RegisterRideByLiftId(SkiRun skiRun)
+    {
+        string query = "INSERT INTO ski_run(ski_pass_id, lift_id, season_id, \"timestamp\") VALUES (@ski_pass_id, @lift_id, @season_id, @timestamp)";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("ski_pass_id", skiRun.SkipassId);
+        command.Parameters.AddWithValue("lift_id", skiRun.LiftId);
+        command.Parameters.AddWithValue("season_id", skiRun.SeasonId);
+        command.Parameters.AddWithValue("timestamp", skiRun.Timestamp);
 
         var result = await command.ExecuteNonQueryAsync();
 
@@ -214,7 +401,7 @@ public class DbRepository
         command.Parameters.AddWithValue("skier_id", skipass.SkierId);
         command.Parameters.AddWithValue("valid_from", skipass.ValidFrom);
         command.Parameters.AddWithValue("valid_to", skipass.ValidTo);
-        command.Parameters.AddWithValue("detination_id", skipass.DestinationId);
+        command.Parameters.AddWithValue("destination_id", skipass.DestinationId);
 
         var result = await command.ExecuteNonQueryAsync();
 

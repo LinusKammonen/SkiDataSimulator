@@ -3,7 +3,8 @@
 public class Lift
 {
     public int Id { get; set; }
-    public int VerticalDrop { get; set; }
     public string Name { get; set; }
+    public int? VerticalDrop { get; set; }
     public int ResortId { get; set; }
+    public int LiftTypeId { get; set; }
 }
