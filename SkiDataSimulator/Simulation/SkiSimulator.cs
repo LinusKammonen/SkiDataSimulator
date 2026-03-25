@@ -1,4 +1,5 @@
-﻿using SkiDataSimulator.Repositories;
+﻿using SkiDataSimulator.Models;
+using SkiDataSimulator.Repositories;
 using SkidataWpf.Models;
 
 namespace SkiDataSimulator.Simulation
@@ -77,25 +78,40 @@ namespace SkiDataSimulator.Simulation
         /// </summary>
         private async Task<List<SkiRun>> SimulateDayForOneSkipassAsync(SkiPass skiPass, DateTime date, Season season)
         {
+            //Här behöver vi lösa problemet med giltiga datum på liftkorten samt destination. Destination hittar vi via resort.destinationId och skipass.destinationId,
+            //"if (skiPass.destinationId == destination.id) > skiRuns.Add
+            //If rideTime > skipass.validFrom && rideTime < skipass.validTo)
             try
             {
                 int rideCount = GetRandomRidesPerDay();
                 List<SkiRun> skiRuns = new();
                 Resort? resort = await _dbRepository.GetRandomResortAsync();
-                if (resort == null)
-                {
-                    throw new Exception($"Hittade ingen skidanläggning.");
-                }
 
                 for (int i = 0; i < rideCount; i++)
                 {
+                    if (resort == null)
+                    {
+                        throw new Exception($"Hittade ingen skidanläggning.");
+                    }
                     Lift lift = await _dbRepository.GetRandomSkiLiftFromResortAsync(resort);
                     if (lift == null)
                     {
                         throw new Exception($"Hittade ingen lift.");
                     }
                     DateTime rideTime = GenerateRideTimestamp(date);
-                    skiRuns.Add(new SkiRun(skiPass.Id, lift.Id, rideTime, season.Id));
+
+                    if (skiPass.DestinationId == resort.DestinationId && skiPass.ValidTo >= DateOnly.Parse(rideTime.ToString("D")) && skiPass.ValidFrom <= DateOnly.Parse(rideTime.ToString("D")))
+                    {
+                        skiRuns.Add(new SkiRun(skiPass.Id, lift.Id, rideTime, season.Id));
+                    }
+                    // kontrollerat med fråga: SELECT ski_run.id, ski_pass_id, lift_id, season_id, "timestamp" 
+                    // FROM ski_run
+                    //JOIN ski_pass ON ski_pass_id = ski_pass.id
+                    //JOIN lift ON lift.id = ski_run.lift_id
+                    //JOIN resort ON lift.resort_id = resort.id
+                    //WHERE resort.destination_id = 3 (hade bara skipass för destination 3)
+                    else { continue; }
+
                 }
                 return skiRuns;
             }

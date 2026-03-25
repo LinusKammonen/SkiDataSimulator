@@ -34,7 +34,7 @@
         </Grid>
         <Button Content="Registrering" HorizontalAlignment="Left" VerticalAlignment="Top" Width="135" Height="52" Margin="150,0,0,0" Click="Button_Click_1"/>
         <Button Content="Sökfunktion" HorizontalAlignment="Left" Margin="285,0,0,0" VerticalAlignment="Top" Width="134" Height="52" Click="Button_Click"/>
-        <Grid x:Name="Searchfunction" HorizontalAlignment="Center" VerticalAlignment="Center" Height="434">
+        <Grid x:Name="Searchfunction" HorizontalAlignment="Center" VerticalAlignment="Center" Height="434" d:IsHidden="True">
             <Rectangle HorizontalAlignment="Center" Height="434" Stroke="Black" VerticalAlignment="Center" Width="800"/>
             <StackPanel Orientation="Vertical" Margin="-811,13,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
             <TextBox x:Name="txtSearchSkier" HorizontalAlignment="Left" Margin="17,104,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="165"/>
@@ -82,8 +82,17 @@
             <TextBox x:Name="txtImageUrl" HorizontalAlignment="Left" Margin="336,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="144"/>
             <Button x:Name="btnRegister" Content="Registrera" HorizontalAlignment="Left" Margin="360,237,0,0" VerticalAlignment="Top" Width="120" Click="btnRegister_Click"/>
         </Grid>
+        <Grid x:Name="Delete" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Rectangle HorizontalAlignment="Center" Height="432" Stroke="Black" VerticalAlignment="Center" Width="800"/>
+            <ComboBox x:Name="cbDeleteResorts" HorizontalAlignment="Center" Margin="0,123,0,0" VerticalAlignment="Top" Width="188"/>
+            <ComboBox x:Name="cbDeleteLifts" HorizontalAlignment="Center" Margin="0,266,0,0" VerticalAlignment="Top" Width="188"/>
+            <TextBlock HorizontalAlignment="Left" Margin="373,240,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="79"><Run Text="Välj lift"/><Run Language="sv-se" Text=":"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="368,94,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="80"><Run Text="Välj "/><Run Text="resort"/><Run Language="sv-se" Text=":"/></TextBlock>
+            <Button x:Name="btnDeleteResort" Content="Ta bort resort"  HorizontalAlignment="Center" Margin="0,158,0,0" VerticalAlignment="Top" Background="Red" Click="btnDeleteResort_Click"/>
+            <Button x:Name="btnDeleteLift" Content="Ta bort lift" HorizontalAlignment="Center" Margin="0,301,0,0" VerticalAlignment="Top" Width="74" Background="#FFF13737" Click="btnDeleteLift_Click"/>
+        </Grid>
         <Button x:Name="btnLiftkort" Content="Liftkort" HorizontalAlignment="Left" Margin="419,0,0,0" VerticalAlignment="Top" Height="52 " Width="132" Click="btnLiftkort_Click"/>
-        <Button Content="Radera resorter" HorizontalAlignment="Left" Margin="685,0,0,0" VerticalAlignment="Top" Height="52" Width="115"/>
+        <Button x:Name="btnDelete" Content="Radera" HorizontalAlignment="Left" Margin="685,0,0,0" VerticalAlignment="Top" Height="52" Width="115" Click="btnDelete_Click"/>
         <Button x:Name="btnRides" Content="Registrera åk" HorizontalAlignment="Left" Margin="551,0,0,0" VerticalAlignment="Top" Height="52" Width="134" Click="btnRides_Click"/>
         <Button x:Name="btnSimulateDay" Content="Simulera dag" Click="OnButtonSimulateDayClick" Margin="0,0,650,408"/>
         <Button x:Name="btnSimulateSeason" Content="Simulera säsong" Margin="0,26,650,382" Click="OnButtonSimulateSeasonClick"/>

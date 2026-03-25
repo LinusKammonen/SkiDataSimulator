@@ -28,9 +28,9 @@ public partial class MainWindow : Window
         Searchfunction.Visibility = Visibility.Hidden;
         Liftkort.Visibility = Visibility.Hidden;
         Rides.Visibility = Visibility.Hidden;
+        Delete.Visibility = Visibility.Hidden;
        
     }
-
 
     private async void OnButtonSimulateDayClick(object sender, RoutedEventArgs e)
     {
@@ -312,5 +312,51 @@ public partial class MainWindow : Window
 
         }
 
+    }
+
+    private async void btnDelete_Click(object sender, RoutedEventArgs e)
+    {
+        reset_grids();
+        Delete.Visibility = Visibility.Visible;
+        List<Resort> resorts = await _dbRepository.GenerateResorts();
+        List<Lift> lifts = await _dbRepository.GenerateLift();
+        FillCombobox<Resort>(cbDeleteResorts, resorts);
+        FillCombobox<Lift>(cbDeleteLifts, lifts);
+    }
+
+    private async void btnDeleteResort_Click(object sender, RoutedEventArgs e)
+    {
+        Resort? resort = cbDeleteResorts.SelectedItem as Resort;
+        if (resort != null)
+        {
+            bool svar = await _dbRepository.DeleteResort(resort.Id);
+            if (svar == true)
+            {
+                MessageBox.Show($"Du har tagit bort {resort.Name}");
+            }
+            else return;
+        }
+        else
+        {
+            MessageBox.Show($"Du har inte angivit ett resort");
+        }
+    }
+
+    private async void btnDeleteLift_Click(object sender, RoutedEventArgs e)
+    {
+        Lift? lift = cbDeleteLifts.SelectedItem as Lift;
+        if (lift != null)
+        {
+            bool svar = await _dbRepository.DeleteLift(lift.Id);
+            if (svar == true)
+            {
+                MessageBox.Show($"Du har tagit bort {lift.Name}");
+            }
+            else return;
+        }
+        else
+        {
+            MessageBox.Show($"Du har inte angivit en lift");
+        }
     }
 }

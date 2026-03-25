@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using SkiDataSimulator.Models;
 using SkidataWpf.Models;
+using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Xml.Linq;
 namespace SkiDataSimulator.Repositories;
@@ -15,13 +16,44 @@ public class DbRepository
     }
     public async Task<Lift> GetRandomSkiLiftFromResortAsync(Resort resort)
     {
-        /* Här ska ni hämta en slumpmässig lift som skidåkaren åker i en viss anläggning
-         * Hur slumpar man? Ett tips är att hämta alla id för liftar och lägga i en array som
-         * ni sedan slumpar värden från och returnerar
-         */
+        string query = "SELECT * FROM lift WHERE resort_id = @id ORDER BY RANDOM() LIMIT 1";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("id", resort.Id);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Name = reader.GetOrdinal("name"),
+            VerticalDrop = reader.GetOrdinal("vertical_drop"),
+            ResortId = reader.GetOrdinal("resort_id"),
+            LiftTypeId = reader.GetOrdinal("lift_type_id")
+        };
+        while (await reader.ReadAsync())
+        {
+            Lift lift = new Lift
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.GetFieldValue<string>(ordinals.Name),
+                VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
+                ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
+                LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+            };
+            return lift;
+        }
+        return null;
+
+            /* Här ska ni hämta en slumpmässig lift som skidåkaren åker i en viss anläggning
+             * Hur slumpar man? Ett tips är att hämta alla id för liftar och lägga i en array som
+             * ni sedan slumpar värden från och returnerar
+             */
 
 
-        throw new NotImplementedException();
+
+            throw new NotImplementedException();
     }
     public async Task<SkierDetailedSeason?> GetSkierDetailedSeason(int id)
     {
@@ -221,6 +253,31 @@ public class DbRepository
         return result == 1;
 
     }
+    public async Task<bool> DeleteResort(int id)
+    {
+        string query = "DELETE FROM resort WHERE id = @id";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("id", id);
+
+        var result = await command.ExecuteNonQueryAsync();
+
+        return result == 1;
+    }
+    public async Task<bool> DeleteLift(int id)
+    {
+        string query = "DELETE FROM lift WHERE id = @id";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("id", id);
+
+        var result = await command.ExecuteNonQueryAsync();
+
+        return result == 1;
+    }
+
     public async Task<List<Lift>> FindLiftsByResortId(int id)
     {
         try
@@ -264,6 +321,63 @@ public class DbRepository
             throw;
         }
 
+    }
+    public async Task<List<Resort>> GenerateResorts()
+    {
+
+        string query = "SELECT * FROM resort";
+        await using var command = _dataSource.CreateCommand(query);
+        await using var reader = await command.ExecuteReaderAsync();
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Name = reader.GetOrdinal("name"),
+            DestinationId = reader.GetOrdinal("destination_id")
+        };
+        List<Resort> resorts = [];
+
+        while (await reader.ReadAsync())
+        {
+            Resort resort = new Resort
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.GetFieldValue<string>(ordinals.Name),
+                DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+            };
+            resorts.Add(resort);
+        }
+        return resorts;
+
+
+    }
+    public async Task<List<Lift>> GenerateLift()
+    {
+        string query = "SELECT * FROM lift";
+        await using var command = _dataSource.CreateCommand(query);
+        await using var reader = await command.ExecuteReaderAsync();
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Name = reader.GetOrdinal("name"),
+            VerticalDrop = reader.GetOrdinal("vertical_drop"),
+            ResortId = reader.GetOrdinal("resort_id"),
+            LiftTypeId = reader.GetOrdinal("lift_type_id")
+        };
+        List<Lift> lifts = [];
+
+        while (await reader.ReadAsync())
+        {
+            Lift lift = new Lift
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.GetFieldValue<string>(ordinals.Name),
+                VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
+                ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
+                LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+            };
+            lifts.Add(lift);
+        }
+        return lifts;
 
     }
     public async Task<List<Resort>> FindResortByDestinationID(int id)
@@ -444,20 +558,106 @@ public class DbRepository
          * Kika gärna på ORDER BY RANDOM() i PostgreSQL
          */
 
-        throw new NotImplementedException();
+        string query = "SELECT * FROM ski_pass ORDER BY RANDOM() LIMIT @number";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("number", numberOfSkipasses);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            CardNumber = reader.GetOrdinal("card_number"),
+            SkierId = reader.GetOrdinal("skier_id"),
+            ValidFrom = reader.GetOrdinal("valid_from"),
+            ValidTo = reader.GetOrdinal("valid_to"),
+            DestinationId = reader.GetOrdinal("destination_id")
+        };
+
+        List<SkiPass> skipasses = [];
+
+        while (await reader.ReadAsync())
+        {
+            SkiPass skipass = new SkiPass
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                CardNumber = reader.GetFieldValue<int>(ordinals.CardNumber),
+                SkierId = reader.GetFieldValue<int>(ordinals.SkierId),
+                ValidFrom = reader.GetFieldValue<DateOnly>(ordinals.ValidFrom),
+                ValidTo = reader.GetFieldValue<DateOnly?>(ordinals.ValidTo),
+                DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+            };
+            skipasses.Add(skipass);
+        }
+        return skipasses;
+
+            throw new NotImplementedException();
     }
     public async Task<Resort> GetRandomResortAsync()
     {
-        /*  Leta upp en slumpmässig anläggning (resort)
-         *  Här kan ni använda er av slumpgeneratorn som finns inbyggd i PostgreSQL
-         *  ORDER BY RANDOM()
-         */
+        string query = "SELECT * FROM resort ORDER BY RANDOM() LIMIT 1";
+        
+        await using var command = _dataSource.CreateCommand(query);
+        
+        await using var reader = await command.ExecuteReaderAsync();
 
-        throw new NotImplementedException();
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            Name = reader.GetOrdinal("name"),
+            DestinationId = reader.GetOrdinal("destination_id")
+        };
+        while (await reader.ReadAsync())
+        {
+            Resort resort = new Resort
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.GetFieldValue<string>(ordinals.Name),
+                DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+            };
+            return resort;
+        }
+        return null;
+
+            /*  Leta upp en slumpmässig anläggning (resort)
+             *  Här kan ni använda er av slumpgeneratorn som finns inbyggd i PostgreSQL
+             *  ORDER BY RANDOM()
+             */
+            throw new NotImplementedException();
 
     }
     public async Task<Season> GetSeasonByDateAsync(DateTime date)
     {
+        string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
+
+        await using var command = _dataSource.CreateCommand(query);
+
+        command.Parameters.AddWithValue("date", date);
+
+        await using var reader = await command.ExecuteReaderAsync();
+
+        var ordinals = new
+        {
+            Id = reader.GetOrdinal("id"),
+            StartDate = reader.GetOrdinal("start_date"),
+            EndDate = reader.GetOrdinal("end_date"),
+            Name = reader.GetOrdinal("name")
+        };
+
+        while (await reader.ReadAsync())
+        {
+            Season season = new Season
+            {
+                Id = reader.GetFieldValue<int>(ordinals.Id),
+                Name = reader.GetFieldValue<string?>(ordinals.Name),
+                StartDate = reader.GetFieldValue<DateTime>(ordinals.StartDate),
+                EndDate = reader.GetFieldValue<DateTime>(ordinals.EndDate)
+            };
+            return season;
+        }
+        return null;
         /* Vilken säsong är egentligen 2023-12-08 eller 2021-04-01
          * Det ska ni kontrollera i er databas or returnera
          */
@@ -465,12 +665,31 @@ public class DbRepository
         throw new NotImplementedException();
     }
 
-    public async Task SaveSkiRunsAsync(List<SkiRun> skiRuns)
+    public async Task<bool> SaveSkiRunsAsync(List<SkiRun> skiRuns)
     {
+        
+        for (int i=0; i<skiRuns.Count; i++)
+        {
+            string query = "INSERT INTO ski_run(ski_pass_id, lift_id, season_id, \"timestamp\") VALUES (@ski_pass_id, @lift_id, @season_id, @timestamp)";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("ski_pass_id", skiRuns[i].SkipassId);
+            command.Parameters.AddWithValue("lift_id", skiRuns[i].LiftId);
+            command.Parameters.AddWithValue("season_id", skiRuns[i].SeasonId);
+            command.Parameters.AddWithValue("timestamp", skiRuns[i].Timestamp);
+
+            var result = await command.ExecuteNonQueryAsync();
+
+        }
+
+        return false;
+
         /* Skicka in alla åk som har genererats till databasen med 
          * hjälp av SQL-frågor
          */
 
         throw new NotImplementedException();
     }
+    
 }
