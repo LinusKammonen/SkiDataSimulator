@@ -2,10 +2,13 @@
 using SkiDataSimulator.Repositories;
 using SkiDataSimulator.Simulation;
 using SkidataWpf.Models;
+using System.Globalization;
+using System.Net;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media.Imaging;
+using static System.Net.WebRequestMethods;
 
 namespace SkiDataSimulator;
 
@@ -132,6 +135,7 @@ public partial class MainWindow : Window
         Searchfunction.Visibility = Visibility.Hidden;
         Liftkort.Visibility = Visibility.Hidden;
         Rides.Visibility = Visibility.Hidden;
+        Delete.Visibility = Visibility.Hidden;
     }
 
     private void Button_Click_1(object sender, RoutedEventArgs e)
@@ -156,9 +160,25 @@ public partial class MainWindow : Window
         txtUser.Text = skier.Username;
         txtFirst.Text = skier.Firstname;
         txtLast.Text = skier.Lastname;
-        if (skier.Image_url != null) 
+
+        //https://stackoverflow.com/questions/11082804/detecting-image-url-in-c-net - för att kolla om det är en URL och inte bara en sträng
+
+        bool IsImageUrl(string URL)
         {
-            imgSkier.Source = new BitmapImage(new Uri(skier.Image_url));
+            var req = (HttpWebRequest)HttpWebRequest.Create(URL);
+            req.Method = "HEAD";
+            using (var resp = req.GetResponse())
+            {
+                return resp.ContentType.ToLower(CultureInfo.InvariantCulture)
+                           .StartsWith("image/");
+            }
+        }
+        if (skier.Image_url != string.Empty && skier.Image_url != null)
+        {
+            if (IsImageUrl(skier.Image_url) == true)
+            {
+                imgSkier.Source = new BitmapImage(new Uri(skier.Image_url));
+            }
         }
         else
         {
@@ -297,7 +317,7 @@ public partial class MainWindow : Window
                 MessageBox.Show("Du saknar giltigt liftkort");
                 return;
             }
-            else if (destination.Id == skipass.DestinationId && DateOnly.Parse(skirun.Timestamp.ToString("D")) < skipass.ValidTo && DateOnly.Parse(skirun.Timestamp.ToString("D")) > skipass.ValidFrom)
+            else if (destination.Id == skipass.DestinationId && DateOnly.Parse(skirun.Timestamp.ToString("D")) <= skipass.ValidTo && DateOnly.Parse(skirun.Timestamp.ToString("D")) >= skipass.ValidFrom)
             {
                 bool svar = await _dbRepository.RegisterRideByLiftId(skirun);
 

@@ -236,21 +236,29 @@ public class DbRepository
     } 
     public async Task<bool> RegisterSkier(Skier skier)
     {
-        string query = "insert into skier" +
+        try
+        {
+            string query = "insert into skier" +
                        "(firstname, lastname, email, username, image_url)" +
                        " values (@firstname, @lastname, @email, @username, @image_url)";
 
-        await using var command = _dataSource.CreateCommand(query);
+            await using var command = _dataSource.CreateCommand(query);
 
-        command.Parameters.AddWithValue("firstname", skier.Firstname);
-        command.Parameters.AddWithValue("lastname", skier.Lastname);
-        command.Parameters.AddWithValue("email", skier.Email);
-        command.Parameters.AddWithValue("username", skier.Username);
-        command.Parameters.AddWithValue("image_url", skier.Image_url);
+            command.Parameters.AddWithValue("firstname", skier.Firstname);
+            command.Parameters.AddWithValue("lastname", skier.Lastname);
+            command.Parameters.AddWithValue("email", skier.Email);
+            command.Parameters.AddWithValue("username", skier.Username);
+            command.Parameters.AddWithValue("image_url", skier.Image_url);
 
-        var result = await command.ExecuteNonQueryAsync();
+            var result = await command.ExecuteNonQueryAsync();
 
-        return result == 1;
+            return result == 1;
+        }
+        catch (Exception)
+        {
+
+            throw;
+        }
 
     }
     public async Task<bool> DeleteResort(int id)
