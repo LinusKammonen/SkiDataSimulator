@@ -84,11 +84,13 @@ namespace SkiDataSimulator.Simulation
             try
             {
                 int rideCount = GetRandomRidesPerDay();
-                List<SkiRun> skiRuns = new();
                 Resort? resort = await _dbRepository.GetRandomResortAsync();
+
+                List<SkiRun> skiRuns = new();
 
                 for (int i = 0; i < rideCount; i++)
                 {
+
                     if (resort == null)
                     {
                         throw new Exception($"Hittade ingen skidanläggning.");

@@ -1,6 +1,7 @@
 ﻿using Npgsql;
 using SkiDataSimulator.Models;
 using SkidataWpf.Models;
+using System.Reflection.Metadata;
 using System.Windows.Controls;
 using System.Windows.Controls.Primitives;
 using System.Xml.Linq;
@@ -16,44 +17,47 @@ public class DbRepository
     }
     public async Task<Lift> GetRandomSkiLiftFromResortAsync(Resort resort)
     {
-        string query = "SELECT * FROM lift WHERE resort_id = @id ORDER BY RANDOM() LIMIT 1";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("id", resort.Id);
-
-        await using var reader = await command.ExecuteReaderAsync();
-
-        var ordinals = new
+        try
         {
-            Id = reader.GetOrdinal("id"),
-            Name = reader.GetOrdinal("name"),
-            VerticalDrop = reader.GetOrdinal("vertical_drop"),
-            ResortId = reader.GetOrdinal("resort_id"),
-            LiftTypeId = reader.GetOrdinal("lift_type_id")
-        };
-        while (await reader.ReadAsync())
-        {
-            Lift lift = new Lift
+            string query = "SELECT * FROM lift WHERE resort_id = @id ORDER BY RANDOM() LIMIT 1";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("id", resort.Id);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
             {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.GetFieldValue<string>(ordinals.Name),
-                VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
-                ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
-                LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                VerticalDrop = reader.GetOrdinal("vertical_drop"),
+                ResortId = reader.GetOrdinal("resort_id"),
+                LiftTypeId = reader.GetOrdinal("lift_type_id")
             };
-            return lift;
+            while (await reader.ReadAsync())
+            {
+                Lift lift = new Lift
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string>(ordinals.Name),
+                    VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
+                    ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
+                    LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+                };
+                return lift;
+            }
+            return null;
         }
-        return null;
-
+        catch (PostgresException exception)
+        {
+                throw DbExceptions.Translate(exception);
+        }
+        
             /* Här ska ni hämta en slumpmässig lift som skidåkaren åker i en viss anläggning
              * Hur slumpar man? Ett tips är att hämta alla id för liftar och lägga i en array som
              * ni sedan slumpar värden från och returnerar
              */
-
-
-
-            throw new NotImplementedException();
     }
     public async Task<SkierDetailedSeason?> GetSkierDetailedSeason(int id)
     {
@@ -78,7 +82,7 @@ public class DbRepository
                 Enddate = reader.GetOrdinal("slutdatum"),
                 TotalSeasonRuns = reader.GetOrdinal("total_season_runs"),
                 CurrentSeason = reader.GetOrdinal("season"),
-                TotalSeasonDays = ("total_season_days")
+                TotalSeasonDays = reader.GetOrdinal("total_season_days")
             };
 
             while (await reader.ReadAsync())
@@ -88,7 +92,7 @@ public class DbRepository
                     Enddate = reader.GetFieldValue<DateOnly?>(ordinals.Enddate),
                     TotalSeasonRuns = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns),
                     CurrentSeason = reader.GetFieldValue<string?>(ordinals.CurrentSeason),
-                    TotalSeasonDays = reader.GetFieldValue<int?>(ordinals.TotalSeasonRuns)
+                    TotalSeasonDays = reader.GetFieldValue<int?>(ordinals.TotalSeasonDays)
                 };
                 return skier;
             }
@@ -96,8 +100,7 @@ public class DbRepository
         }
         catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);
         }
 
     }
@@ -140,8 +143,7 @@ public class DbRepository
         }
         catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);
         }
 
     }
@@ -182,8 +184,7 @@ public class DbRepository
         }
         catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);
         }
 
     }
@@ -229,8 +230,7 @@ public class DbRepository
         }
         catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);
         }
 
     } 
@@ -254,36 +254,48 @@ public class DbRepository
 
             return result == 1;
         }
-        catch (Exception)
+        catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);          
         }
-
     }
     public async Task<bool> DeleteResort(int id)
     {
-        string query = "DELETE FROM resort WHERE id = @id";
+        try
+        {
+            string query = "DELETE FROM resort WHERE id = @id";
 
-        await using var command = _dataSource.CreateCommand(query);
+            await using var command = _dataSource.CreateCommand(query);
 
-        command.Parameters.AddWithValue("id", id);
+            command.Parameters.AddWithValue("id", id);
 
-        var result = await command.ExecuteNonQueryAsync();
+            var result = await command.ExecuteNonQueryAsync();
 
-        return result == 1;
+            return result == 1;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
     }
     public async Task<bool> DeleteLift(int id)
     {
-        string query = "DELETE FROM lift WHERE id = @id";
+        try
+        {
+            string query = "DELETE FROM lift WHERE id = @id";
 
-        await using var command = _dataSource.CreateCommand(query);
+            await using var command = _dataSource.CreateCommand(query);
 
-        command.Parameters.AddWithValue("id", id);
+            command.Parameters.AddWithValue("id", id);
 
-        var result = await command.ExecuteNonQueryAsync();
+            var result = await command.ExecuteNonQueryAsync();
 
-        return result == 1;
+            return result == 1;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }   
     }
 
     public async Task<List<Lift>> FindLiftsByResortId(int id)
@@ -325,68 +337,76 @@ public class DbRepository
         }
         catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);
         }
-
     }
     public async Task<List<Resort>> GenerateResorts()
     {
-
-        string query = "SELECT * FROM resort";
-        await using var command = _dataSource.CreateCommand(query);
-        await using var reader = await command.ExecuteReaderAsync();
-        var ordinals = new
+        try
         {
-            Id = reader.GetOrdinal("id"),
-            Name = reader.GetOrdinal("name"),
-            DestinationId = reader.GetOrdinal("destination_id")
-        };
-        List<Resort> resorts = [];
-
-        while (await reader.ReadAsync())
-        {
-            Resort resort = new Resort
+            string query = "SELECT * FROM resort";
+            await using var command = _dataSource.CreateCommand(query);
+            await using var reader = await command.ExecuteReaderAsync();
+            var ordinals = new
             {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.GetFieldValue<string>(ordinals.Name),
-                DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                DestinationId = reader.GetOrdinal("destination_id")
             };
-            resorts.Add(resort);
+            List<Resort> resorts = [];
+
+            while (await reader.ReadAsync())
+            {
+                Resort resort = new Resort
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string>(ordinals.Name),
+                    DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+                };
+                resorts.Add(resort);
+            }
+            return resorts;
         }
-        return resorts;
-
-
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
     }
     public async Task<List<Lift>> GenerateLift()
     {
-        string query = "SELECT * FROM lift";
-        await using var command = _dataSource.CreateCommand(query);
-        await using var reader = await command.ExecuteReaderAsync();
-        var ordinals = new
+        try
         {
-            Id = reader.GetOrdinal("id"),
-            Name = reader.GetOrdinal("name"),
-            VerticalDrop = reader.GetOrdinal("vertical_drop"),
-            ResortId = reader.GetOrdinal("resort_id"),
-            LiftTypeId = reader.GetOrdinal("lift_type_id")
-        };
-        List<Lift> lifts = [];
-
-        while (await reader.ReadAsync())
-        {
-            Lift lift = new Lift
+            string query = "SELECT * FROM lift";
+            await using var command = _dataSource.CreateCommand(query);
+            await using var reader = await command.ExecuteReaderAsync();
+            var ordinals = new
             {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.GetFieldValue<string>(ordinals.Name),
-                VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
-                ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
-                LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                VerticalDrop = reader.GetOrdinal("vertical_drop"),
+                ResortId = reader.GetOrdinal("resort_id"),
+                LiftTypeId = reader.GetOrdinal("lift_type_id")
             };
-            lifts.Add(lift);
-        }
-        return lifts;
+            List<Lift> lifts = [];
 
+            while (await reader.ReadAsync())
+            {
+                Lift lift = new Lift
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string>(ordinals.Name),
+                    VerticalDrop = reader.GetFieldValue<int?>(ordinals.VerticalDrop),
+                    ResortId = reader.GetFieldValue<int>(ordinals.ResortId),
+                    LiftTypeId = reader.GetFieldValue<int>(ordinals.LiftTypeId)
+                };
+                lifts.Add(lift);
+            }
+            return lifts;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
     }
     public async Task<List<Resort>> FindResortByDestinationID(int id)
     {
@@ -423,281 +443,356 @@ public class DbRepository
         }
         catch (PostgresException exception)
         {
-
-            throw;
+            throw DbExceptions.Translate(exception);
         }
-
     }
     public async Task<Season> GetSeasonByTime(DateTime time)
     {
-        string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("date", time);
-
-        await using var reader = await command.ExecuteReaderAsync();
-
-        var ordinals = new
+        try
         {
-            Id = reader.GetOrdinal("id"),
-            StartDate = reader.GetOrdinal("start_date"),
-            EndDate = reader.GetOrdinal("end_date"),
-            Name = reader.GetOrdinal("name")
-        };
+            string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
 
-        while (await reader.ReadAsync())
-        {
-            Season season = new Season
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("date", time);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
             {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.GetFieldValue<string?>(ordinals.Name),
-                StartDate = reader.GetFieldValue<DateTime>(ordinals.StartDate),
-                EndDate = reader.GetFieldValue<DateTime>(ordinals.EndDate)
+                Id = reader.GetOrdinal("id"),
+                StartDate = reader.GetOrdinal("start_date"),
+                EndDate = reader.GetOrdinal("end_date"),
+                Name = reader.GetOrdinal("name")
             };
-            return season;
-        }
-        return null;
 
+            while (await reader.ReadAsync())
+            {
+                Season season = new Season
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string?>(ordinals.Name),
+                    StartDate = reader.GetFieldValue<DateTime>(ordinals.StartDate),
+                    EndDate = reader.GetFieldValue<DateTime>(ordinals.EndDate)
+                };
+                return season;
+            }
+            return null;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }       
     }
     public async Task<bool> RegisterRideByLiftId(SkiRun skiRun)
     {
-        string query = "INSERT INTO ski_run(ski_pass_id, lift_id, season_id, \"timestamp\") VALUES (@ski_pass_id, @lift_id, @season_id, @timestamp)";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("ski_pass_id", skiRun.SkipassId);
-        command.Parameters.AddWithValue("lift_id", skiRun.LiftId);
-        command.Parameters.AddWithValue("season_id", skiRun.SeasonId);
-        command.Parameters.AddWithValue("timestamp", skiRun.Timestamp);
-
-        var result = await command.ExecuteNonQueryAsync();
-
-        return result == 1;
-
-    }
-    public async Task<Skier> FindSkierByUsername(string username)
-    {
-        string query = "SELECT * FROM skier WHERE username = @username";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("username", username);
-
-        await using var reader = await command.ExecuteReaderAsync();
-
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("id"),
-            Firstname = reader.GetOrdinal("firstname"),
-            Lastname = reader.GetOrdinal("lastname"),
-            Email = reader.GetOrdinal("email"),
-            Username = reader.GetOrdinal("username"),
-            Image_url = reader.GetOrdinal("image_url")
-        };
-        while (await reader.ReadAsync())
-        {
-            Skier skier = new Skier
-            {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Firstname = reader.GetFieldValue<string>(ordinals.Firstname),
-                Lastname = reader.GetFieldValue<string>(ordinals.Lastname),
-                Email = reader.GetFieldValue<string>(ordinals.Email),
-                Image_url = reader.IsDBNull(ordinals.Image_url) ? null : reader.GetFieldValue<string?>(ordinals.Image_url)
-            };
-            return skier;
-        }
-        return null;
-
-    }
-    public async Task<bool> BuySkiPass(SkiPass skipass)
-    {
-        // https://stackoverflow.com/questions/6817266/how-to-get-the-current-date-without-the-time 
-        //översätta datetime till dateonly 
-        string query = "INSERT INTO ski_pass(card_number, skier_id, valid_from, valid_to, destination_id) " +
-                       "VALUES (@card_number, @skier_id, @valid_from, @valid_to, @destination_id)";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("card_number", skipass.CardNumber);
-        command.Parameters.AddWithValue("skier_id", skipass.SkierId);
-        command.Parameters.AddWithValue("valid_from", skipass.ValidFrom);
-        command.Parameters.AddWithValue("valid_to", skipass.ValidTo);
-        command.Parameters.AddWithValue("destination_id", skipass.DestinationId);
-
-        var result = await command.ExecuteNonQueryAsync();
-
-        return result == 1; 
-    }
-    public async Task<List<Destination>> GetDestinations()
-    {
-        string query = "SELECT * FROM destination";
-
-        await using var command = _dataSource.CreateCommand(query);
-        await using var reader = await command.ExecuteReaderAsync();
-
-
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("id"),
-            Name = reader.GetOrdinal("name"),
-            CountryId = reader.GetOrdinal("country_id"), 
-        };
-
-        List<Destination> destinations = [];
-        while (await reader.ReadAsync())
-        {
-            Destination destination = new Destination
-            {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.IsDBNull(ordinals.Name) ? null : reader.GetFieldValue<string?>(ordinals.Name),
-                CountryId = reader.GetFieldValue<int>(ordinals.Id)
-            };
-            destinations.Add(destination);
-        }
-        return destinations;
-
-    }
-    public async Task<List<SkiPass>> GetRandomSkiPassesAsync(int numberOfSkipasses)
-    {
-        /* Om ni vill simulera att säg 20 skidåkare åker en dag i alla anläggningar
-         * då måste ni hitta 20 lifkort från databasen. Ni behöver inte ta hänsyn till
-         * gilgithetsdatumet om ni inte vill
-         * Kika gärna på ORDER BY RANDOM() i PostgreSQL
-         */
-
-        string query = "SELECT * FROM ski_pass ORDER BY RANDOM() LIMIT @number";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("number", numberOfSkipasses);
-
-        await using var reader = await command.ExecuteReaderAsync();
-
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("id"),
-            CardNumber = reader.GetOrdinal("card_number"),
-            SkierId = reader.GetOrdinal("skier_id"),
-            ValidFrom = reader.GetOrdinal("valid_from"),
-            ValidTo = reader.GetOrdinal("valid_to"),
-            DestinationId = reader.GetOrdinal("destination_id")
-        };
-
-        List<SkiPass> skipasses = [];
-
-        while (await reader.ReadAsync())
-        {
-            SkiPass skipass = new SkiPass
-            {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                CardNumber = reader.GetFieldValue<int>(ordinals.CardNumber),
-                SkierId = reader.GetFieldValue<int>(ordinals.SkierId),
-                ValidFrom = reader.GetFieldValue<DateOnly>(ordinals.ValidFrom),
-                ValidTo = reader.GetFieldValue<DateOnly?>(ordinals.ValidTo),
-                DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
-            };
-            skipasses.Add(skipass);
-        }
-        return skipasses;
-
-            throw new NotImplementedException();
-    }
-    public async Task<Resort> GetRandomResortAsync()
-    {
-        string query = "SELECT * FROM resort ORDER BY RANDOM() LIMIT 1";
-        
-        await using var command = _dataSource.CreateCommand(query);
-        
-        await using var reader = await command.ExecuteReaderAsync();
-
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("id"),
-            Name = reader.GetOrdinal("name"),
-            DestinationId = reader.GetOrdinal("destination_id")
-        };
-        while (await reader.ReadAsync())
-        {
-            Resort resort = new Resort
-            {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.GetFieldValue<string>(ordinals.Name),
-                DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
-            };
-            return resort;
-        }
-        return null;
-
-            /*  Leta upp en slumpmässig anläggning (resort)
-             *  Här kan ni använda er av slumpgeneratorn som finns inbyggd i PostgreSQL
-             *  ORDER BY RANDOM()
-             */
-            throw new NotImplementedException();
-
-    }
-    public async Task<Season> GetSeasonByDateAsync(DateTime date)
-    {
-        string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
-
-        await using var command = _dataSource.CreateCommand(query);
-
-        command.Parameters.AddWithValue("date", date);
-
-        await using var reader = await command.ExecuteReaderAsync();
-
-        var ordinals = new
-        {
-            Id = reader.GetOrdinal("id"),
-            StartDate = reader.GetOrdinal("start_date"),
-            EndDate = reader.GetOrdinal("end_date"),
-            Name = reader.GetOrdinal("name")
-        };
-
-        while (await reader.ReadAsync())
-        {
-            Season season = new Season
-            {
-                Id = reader.GetFieldValue<int>(ordinals.Id),
-                Name = reader.GetFieldValue<string?>(ordinals.Name),
-                StartDate = reader.GetFieldValue<DateTime>(ordinals.StartDate),
-                EndDate = reader.GetFieldValue<DateTime>(ordinals.EndDate)
-            };
-            return season;
-        }
-        return null;
-        /* Vilken säsong är egentligen 2023-12-08 eller 2021-04-01
-         * Det ska ni kontrollera i er databas or returnera
-         */
-
-        throw new NotImplementedException();
-    }
-
-    public async Task<bool> SaveSkiRunsAsync(List<SkiRun> skiRuns)
-    {
-        
-        for (int i=0; i<skiRuns.Count; i++)
+        try
         {
             string query = "INSERT INTO ski_run(ski_pass_id, lift_id, season_id, \"timestamp\") VALUES (@ski_pass_id, @lift_id, @season_id, @timestamp)";
 
             await using var command = _dataSource.CreateCommand(query);
 
-            command.Parameters.AddWithValue("ski_pass_id", skiRuns[i].SkipassId);
-            command.Parameters.AddWithValue("lift_id", skiRuns[i].LiftId);
-            command.Parameters.AddWithValue("season_id", skiRuns[i].SeasonId);
-            command.Parameters.AddWithValue("timestamp", skiRuns[i].Timestamp);
+            command.Parameters.AddWithValue("ski_pass_id", skiRun.SkipassId);
+            command.Parameters.AddWithValue("lift_id", skiRun.LiftId);
+            command.Parameters.AddWithValue("season_id", skiRun.SeasonId);
+            command.Parameters.AddWithValue("timestamp", skiRun.Timestamp);
 
             var result = await command.ExecuteNonQueryAsync();
 
+            return result == 1;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+    }
+    public async Task<bool> RegisterRideByLift(int ski_pass_id, int lift_id, int season_id, DateTime timestamp)
+    {
+        try
+        {
+            string query = "INSERT INTO ski_run(ski_pass_id, lift_id, season_id, \"timestamp\") VALUES (@ski_pass_id, @lift_id, @season_id, @timestamp)";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("ski_pass_id", ski_pass_id);
+            command.Parameters.AddWithValue("lift_id", lift_id);
+            command.Parameters.AddWithValue("season_id", season_id);
+            command.Parameters.AddWithValue("timestamp", timestamp);
+
+            var result = await command.ExecuteNonQueryAsync();
+
+            return result == 1;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+    }
+    public async Task<Skier> FindSkierByUsername(string username)
+    {
+        try
+        {
+            string query = "SELECT * FROM skier WHERE username = @username";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("username", username);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                Firstname = reader.GetOrdinal("firstname"),
+                Lastname = reader.GetOrdinal("lastname"),
+                Email = reader.GetOrdinal("email"),
+                Username = reader.GetOrdinal("username"),
+                Image_url = reader.GetOrdinal("image_url")
+            };
+            while (await reader.ReadAsync())
+            {
+                Skier skier = new Skier
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Firstname = reader.GetFieldValue<string>(ordinals.Firstname),
+                    Lastname = reader.GetFieldValue<string>(ordinals.Lastname),
+                    Email = reader.GetFieldValue<string>(ordinals.Email),
+                    Image_url = reader.IsDBNull(ordinals.Image_url) ? null : reader.GetFieldValue<string?>(ordinals.Image_url)
+                };
+                return skier;
+            }
+            return null;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+    }
+    public async Task<bool> BuySkiPass(SkiPass skipass)
+    {
+        try
+        {
+            // https://stackoverflow.com/questions/6817266/how-to-get-the-current-date-without-the-time 
+            //översätta datetime till dateonly 
+            string query = "INSERT INTO ski_pass(card_number, skier_id, valid_from, valid_to, destination_id) " +
+                           "VALUES (@card_number, @skier_id, @valid_from, @valid_to, @destination_id)";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("card_number", skipass.CardNumber);
+            command.Parameters.AddWithValue("skier_id", skipass.SkierId);
+            command.Parameters.AddWithValue("valid_from", skipass.ValidFrom);
+            command.Parameters.AddWithValue("valid_to", skipass.ValidTo);
+            command.Parameters.AddWithValue("destination_id", skipass.DestinationId);
+
+            var result = await command.ExecuteNonQueryAsync();
+
+            return result == 1;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+        
+    }
+    public async Task<List<Destination>> GetDestinations()
+    {
+        try
+        {
+            string query = "SELECT * FROM destination";
+
+            await using var command = _dataSource.CreateCommand(query);
+            await using var reader = await command.ExecuteReaderAsync();
+
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                CountryId = reader.GetOrdinal("country_id"),
+            };
+
+            List<Destination> destinations = [];
+            while (await reader.ReadAsync())
+            {
+                Destination destination = new Destination
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.IsDBNull(ordinals.Name) ? null : reader.GetFieldValue<string?>(ordinals.Name),
+                    CountryId = reader.GetFieldValue<int>(ordinals.Id)
+                };
+                destinations.Add(destination);
+            }
+            return destinations;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+    }
+    public async Task<List<SkiPass>> GetRandomSkiPassesAsync(int numberOfSkipasses)
+    {
+
+        /* Om ni vill simulera att säg 20 skidåkare åker en dag i alla anläggningar
+         * då måste ni hitta 20 lifkort från databasen. Ni behöver inte ta hänsyn till
+         * gilgithetsdatumet om ni inte vill
+         * Kika gärna på ORDER BY RANDOM() i PostgreSQL
+         */
+        try
+        {
+            string query = "SELECT * FROM ski_pass ORDER BY RANDOM() LIMIT @number";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("number", numberOfSkipasses);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                CardNumber = reader.GetOrdinal("card_number"),
+                SkierId = reader.GetOrdinal("skier_id"),
+                ValidFrom = reader.GetOrdinal("valid_from"),
+                ValidTo = reader.GetOrdinal("valid_to"),
+                DestinationId = reader.GetOrdinal("destination_id")
+            };
+
+            List<SkiPass> skipasses = [];
+
+            while (await reader.ReadAsync())
+            {
+                SkiPass skipass = new SkiPass
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    CardNumber = reader.GetFieldValue<int>(ordinals.CardNumber),
+                    SkierId = reader.GetFieldValue<int>(ordinals.SkierId),
+                    ValidFrom = reader.GetFieldValue<DateOnly>(ordinals.ValidFrom),
+                    ValidTo = reader.GetFieldValue<DateOnly?>(ordinals.ValidTo),
+                    DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+                };
+                skipasses.Add(skipass);
+            }
+            return skipasses;
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+    }
+    public async Task<Resort> GetRandomResortAsync()
+    {
+        /*  Leta upp en slumpmässig anläggning (resort)
+             *  Här kan ni använda er av slumpgeneratorn som finns inbyggd i PostgreSQL
+             *  ORDER BY RANDOM()
+             */
+        try
+        {
+            string query = "SELECT * FROM resort ORDER BY RANDOM() LIMIT 1";
+
+            await using var command = _dataSource.CreateCommand(query);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                Name = reader.GetOrdinal("name"),
+                DestinationId = reader.GetOrdinal("destination_id")
+            };
+            while (await reader.ReadAsync())
+            {
+                Resort resort = new Resort
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string>(ordinals.Name),
+                    DestinationId = reader.GetFieldValue<int>(ordinals.DestinationId)
+                };
+                return resort;
+            }
+            return null;
+
+            
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
         }
 
-        return false;
+    }
+    public async Task<Season> GetSeasonByDateAsync(DateTime date)
+    {
+        /* Vilken säsong är egentligen 2023-12-08 eller 2021-04-01
+             * Det ska ni kontrollera i er databas or returnera
+             */
+        try
+        {
+            string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
 
+            await using var command = _dataSource.CreateCommand(query);
+
+            command.Parameters.AddWithValue("date", date);
+
+            await using var reader = await command.ExecuteReaderAsync();
+
+            var ordinals = new
+            {
+                Id = reader.GetOrdinal("id"),
+                StartDate = reader.GetOrdinal("start_date"),
+                EndDate = reader.GetOrdinal("end_date"),
+                Name = reader.GetOrdinal("name")
+            };
+
+            while (await reader.ReadAsync())
+            {
+                Season season = new Season
+                {
+                    Id = reader.GetFieldValue<int>(ordinals.Id),
+                    Name = reader.GetFieldValue<string?>(ordinals.Name),
+                    StartDate = reader.GetFieldValue<DateTime>(ordinals.StartDate),
+                    EndDate = reader.GetFieldValue<DateTime>(ordinals.EndDate)
+                };
+                return season;
+            }
+            return null;
+            
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
+
+    }
+
+    public async Task<bool> SaveSkiRunsAsync(List<SkiRun> skiRuns)
+    {
         /* Skicka in alla åk som har genererats till databasen med 
-         * hjälp av SQL-frågor
-         */
+             * hjälp av SQL-frågor
+             */
+        try
+        {
+            for (int i = 0; i < skiRuns.Count; i++)
+            {
+                string query = "INSERT INTO ski_run(ski_pass_id, lift_id, season_id, \"timestamp\") VALUES (@ski_pass_id, @lift_id, @season_id, @timestamp)";
 
-        throw new NotImplementedException();
+                await using var command = _dataSource.CreateCommand(query);
+
+                command.Parameters.AddWithValue("ski_pass_id", skiRuns[i].SkipassId);
+                command.Parameters.AddWithValue("lift_id", skiRuns[i].LiftId);
+                command.Parameters.AddWithValue("season_id", skiRuns[i].SeasonId);
+                command.Parameters.AddWithValue("timestamp", skiRuns[i].Timestamp);
+
+                var result = await command.ExecuteNonQueryAsync();
+
+            }
+
+            return false;
+ 
+        }
+        catch (PostgresException exception)
+        {
+            throw DbExceptions.Translate(exception);
+        }
     }
     
 }

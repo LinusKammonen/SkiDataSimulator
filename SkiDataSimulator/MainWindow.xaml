@@ -10,43 +10,46 @@
         <Rectangle HorizontalAlignment="Center" Height="436" Stroke="Black" VerticalAlignment="Center" Width="800"/>
         <Grid x:Name="Rides" HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,2,0,0" d:IsHidden="True">
             <Rectangle HorizontalAlignment="Center" Height="435" Stroke="Black" VerticalAlignment="Center" Width="799"/>
-            <TextBlock HorizontalAlignment="Left" Margin="231,92,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Välj destination:"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="231,126,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Välj resort:"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="231,200,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Ange liftkortsnummer:"/></TextBlock>
-            <TextBox x:Name="txtRunCardNumber" HorizontalAlignment="Left" Margin="366,200,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="136"/>
-            <ComboBox x:Name="cbRunDestination" HorizontalAlignment="Left" Margin="330,89,0,0" VerticalAlignment="Top" Width="172" SelectionChanged="cbRunDestination_SelectionChanged"/>
-            <ComboBox x:Name="cbRunResort" HorizontalAlignment="Left" Margin="330,126,0,0" VerticalAlignment="Top" Width="172" SelectionChanged="cbRunResort_SelectionChanged"/>
-            <Button x:Name="btnRegisterRide" Content="Registrera åk" HorizontalAlignment="Left" Margin="380,235,0,0" VerticalAlignment="Top" Width="122" Click="btnRegisterRide_Click"/>
-            <TextBlock HorizontalAlignment="Left" Margin="231,166,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Välj "/><Run Language="sv-se" Text="lift:"/></TextBlock>
-            <ComboBox x:Name="cbLifts" HorizontalAlignment="Left" Margin="330,166,0,0" VerticalAlignment="Top" Width="172"/>
+            <TextBlock HorizontalAlignment="Left" Margin="234,135,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Välj destination:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="234,169,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Välj resort:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="234,243,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Ange liftkortsnummer:"/></TextBlock>
+            <TextBox x:Name="txtRunCardNumber" HorizontalAlignment="Left" Margin="369,243,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="136"/>
+            <ComboBox x:Name="cbRunDestination" HorizontalAlignment="Left" Margin="333,132,0,0" VerticalAlignment="Top" Width="172" SelectionChanged="cbRunDestination_SelectionChanged"/>
+            <ComboBox x:Name="cbRunResort" HorizontalAlignment="Left" Margin="333,169,0,0" VerticalAlignment="Top" Width="172" SelectionChanged="cbRunResort_SelectionChanged"/>
+            <Button x:Name="btnRegisterRide" Content="Registrera åk" HorizontalAlignment="Left" Margin="383,278,0,0" VerticalAlignment="Top" Width="122" Click="btnRegisterRide_Click"/>
+            <TextBlock HorizontalAlignment="Left" Margin="234,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center"><Run Text="Välj "/><Run Language="sv-se" Text="lift:"/></TextBlock>
+            <ComboBox x:Name="cbLifts" HorizontalAlignment="Left" Margin="333,209,0,0" VerticalAlignment="Top" Width="172"/>
+            <TextBlock HorizontalAlignment="Left" Margin="373,96,0,0" TextWrapping="Wrap" VerticalAlignment="Top" FontWeight="Bold"><Run Language="sv-se" Text="Registrera ett åk"/></TextBlock>
         </Grid>
         <Grid x:Name="Liftkort" HorizontalAlignment="Left" VerticalAlignment="Top" d:IsHidden="True">
-            <TextBlock HorizontalAlignment="Left" Margin="290,64,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Köp liftkort"/>
+            <TextBlock HorizontalAlignment="Left" Margin="290,64,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Köp liftkort" FontWeight="Bold"/>
             <ComboBox x:Name="cbDestination" HorizontalAlignment="Left" Margin="408,159,0,0" VerticalAlignment="Top" Width="120" SelectionChanged="cbDestination_SelectionChanged"/>
             <TextBlock HorizontalAlignment="Left" Margin="290,162,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Välj destination:"/></TextBlock>
-            <Calendar x:Name="calendarBox" HorizontalAlignment="Left" Margin="320,211,0,0" VerticalAlignment="Top"/>
+            <Calendar x:Name="calendarBox" HorizontalAlignment="Left" Margin="250,211,0,0" VerticalAlignment="Top" Height="168" Width="175"/>
             <TextBlock HorizontalAlignment="Left" Margin="290,95,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="A"/><Run Text="n"/><Run Text="ge användarnamn"/><Run Text=":"/></TextBlock>
             <TextBox x:Name="txtInsertUser" HorizontalAlignment="Left" Margin="408,95,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
-            <TextBlock HorizontalAlignment="Left" Margin="366,190,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Text="Ange slutdatum:"/>
+            <TextBlock HorizontalAlignment="Left" Margin="298,190,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Ange s"/><Run Language="sv-se" Text="tartdatum:"/></TextBlock>
             <Button x:Name="btnBuySkiPass" Content="Bekräfta" HorizontalAlignment="Left" Margin="422,384,0,0" VerticalAlignment="Top" Click="Button_Click_2" Width="106"/>
             <TextBlock HorizontalAlignment="Left" Margin="290,127,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="A"/><Run Text="n"/><Run Text="ge "/><Run Language="sv-se" Text="kortnummer:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="496,189,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Välj "/><Run Text="pass:"/></TextBlock>
             <TextBox x:Name="txtCardNumber" HorizontalAlignment="Left" Margin="408,127,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="120"/>
+            <ComboBox x:Name="cbPasses" HorizontalAlignment="Left" Margin="444,211,0,0" VerticalAlignment="Top" Width="148"/>
         </Grid>
-        <Button Content="Registrering" HorizontalAlignment="Left" VerticalAlignment="Top" Width="135" Height="52" Margin="150,0,0,0" Click="Button_Click_1"/>
-        <Button Content="Sökfunktion" HorizontalAlignment="Left" Margin="285,0,0,0" VerticalAlignment="Top" Width="134" Height="52" Click="Button_Click"/>
-        <Grid x:Name="Searchfunction" HorizontalAlignment="Center" VerticalAlignment="Center" Height="434">
+        <Button Content="Registrering" HorizontalAlignment="Left" VerticalAlignment="Top" Width="135" Height="52" Margin="137,0,0,0" Click="Button_Click_1"/>
+        <Button Content="Sökfunktion" HorizontalAlignment="Left" Margin="272,0,0,0" VerticalAlignment="Top" Width="134" Height="52" Click="Button_Click"/>
+        <Grid x:Name="Searchfunction" HorizontalAlignment="Center" VerticalAlignment="Center" Height="434" d:IsHidden="True">
             <Rectangle HorizontalAlignment="Center" Height="434" Stroke="Black" VerticalAlignment="Center" Width="800"/>
             <StackPanel Orientation="Vertical" Margin="-811,13,0,0" VerticalAlignment="Top" HorizontalAlignment="Left"/>
             <TextBox x:Name="txtSearchSkier" HorizontalAlignment="Left" Margin="17,104,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="165"/>
-            <TextBlock HorizontalAlignment="Left" Margin="17,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="165"><Run Language="sv-se" Text="Sök efter skidåkare:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="17,77,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="165" FontWeight="Bold"><Run Language="sv-se" Text="Sök efter skidåkare:"/></TextBlock>
             <Button x:Name="btnSearch" Content="Sök" HorizontalAlignment="Left" Margin="200,104,0,0" VerticalAlignment="Top" Click="btnSearch_Click" Width="91"/>
             <ListBox x:Name="lstskiers" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="17,136,525,25" SelectionChanged="ListBox_SelectionChanged"/>
-            <Image x:Name="imgSkier" HorizontalAlignment="Left" Height="129" Margin="617,61,0,0" VerticalAlignment="Top" Width="145"/>
+            <Image x:Name="imgSkier" HorizontalAlignment="Left" Height="115" Margin="617,75,0,0" VerticalAlignment="Top" Width="135"/>
             <TextBlock HorizontalAlignment="Left" Margin="382,130,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="148"><Run Language="sv-se" Text="Förnamn:"/></TextBlock>
             <TextBlock HorizontalAlignment="Left" Margin="382,151,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="Efternamn:"/></TextBlock>
-            <Label Content="Profil" HorizontalAlignment="Left" Margin="373,75,0,0" VerticalAlignment="Top"/>
-            <Label Content="Säsongsdata" HorizontalAlignment="Left" Margin="373,177,0,0" VerticalAlignment="Top"/>
-            <Label Content="Övriga data" HorizontalAlignment="Left" Margin="375,293,0,0" VerticalAlignment="Top"/>
+            <Label Content="Profil" HorizontalAlignment="Left" Margin="373,75,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+            <Label Content="Säsongsdata" HorizontalAlignment="Left" Margin="373,177,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
+            <Label Content="Övriga data" HorizontalAlignment="Left" Margin="375,293,0,0" VerticalAlignment="Top" FontWeight="Bold"/>
             <TextBlock HorizontalAlignment="Left" Margin="382,109,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="Användarnamn"/><Run Language="sv-se" Text=":"/></TextBlock>
             <Rectangle HorizontalAlignment="Left" Height="76" Margin="373,101,0,0" Stroke="Gray" VerticalAlignment="Top" Width="228"/>
             <TextBlock HorizontalAlignment="Left" Margin="378,0,0,0" TextWrapping="Wrap" VerticalAlignment="Center"><Run Language="sv-se" Text="Säsong:"/></TextBlock>
@@ -69,18 +72,18 @@
         </Grid>
         <Grid x:Name="Register" HorizontalAlignment="Center" VerticalAlignment="Center" Height="434" d:IsHidden="True">
             <Rectangle HorizontalAlignment="Center" Height="434" Stroke="Black" VerticalAlignment="Center" Width="800"/>
-            <TextBlock HorizontalAlignment="Left" Margin="352,71,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="138"><Run Language="sv-se" Text="Registrera skidåkare"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="248,99,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="förnamn:"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="248,125,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="efternamn"/><Run Text=":"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="248,153,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="email:"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="248,181,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="användarnamn"/><Run Language="sv-se" Text=":"/></TextBlock>
-            <TextBlock HorizontalAlignment="Left" Margin="248,207,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="bild (valfritt):"/></TextBlock>
-            <TextBox x:Name="txtFirstName" HorizontalAlignment="Left" Margin="336,99,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144"/>
-            <TextBox x:Name="txtLastName" HorizontalAlignment="Left" Margin="336,123,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144"/>
-            <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="336,153,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144"/>
-            <TextBox x:Name="txtUsername" HorizontalAlignment="Left" Margin="336,181,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="144"/>
-            <TextBox x:Name="txtImageUrl" HorizontalAlignment="Left" Margin="336,0,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Center" Width="144"/>
-            <Button x:Name="btnRegister" Content="Registrera" HorizontalAlignment="Left" Margin="360,237,0,0" VerticalAlignment="Top" Width="120" Click="btnRegister_Click"/>
+            <TextBlock HorizontalAlignment="Left" Margin="353,119,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="138" FontWeight="Bold"><Run Language="sv-se" Text="Registrera skidåkare"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="241,152,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="förnamn:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="241,178,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="efternamn"/><Run Text=":"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="241,206,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="email:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="241,234,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Text="användarnamn"/><Run Language="sv-se" Text=":"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="241,260,0,0" TextWrapping="Wrap" VerticalAlignment="Top"><Run Language="sv-se" Text="bild (valfritt):"/></TextBlock>
+            <TextBox x:Name="txtFirstName" HorizontalAlignment="Left" Margin="329,152,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="162"/>
+            <TextBox x:Name="txtLastName" HorizontalAlignment="Left" Margin="329,176,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="162"/>
+            <TextBox x:Name="txtEmail" HorizontalAlignment="Left" Margin="329,206,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="162"/>
+            <TextBox x:Name="txtUsername" HorizontalAlignment="Left" Margin="329,234,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="162"/>
+            <TextBox x:Name="txtImageUrl" HorizontalAlignment="Left" Margin="329,262,0,0" TextWrapping="Wrap" Text="" VerticalAlignment="Top" Width="162"/>
+            <Button x:Name="btnRegister" Content="Registrera" HorizontalAlignment="Left" Margin="371,290,0,0" VerticalAlignment="Top" Width="120" Click="btnRegister_Click"/>
         </Grid>
         <Grid x:Name="Delete" HorizontalAlignment="Center" VerticalAlignment="Center" d:IsHidden="True">
             <Rectangle HorizontalAlignment="Center" Height="432" Stroke="Black" VerticalAlignment="Center" Width="800"/>
@@ -91,11 +94,19 @@
             <Button x:Name="btnDeleteResort" Content="Ta bort resort"  HorizontalAlignment="Center" Margin="0,158,0,0" VerticalAlignment="Top" Background="Red" Click="btnDeleteResort_Click"/>
             <Button x:Name="btnDeleteLift" Content="Ta bort lift" HorizontalAlignment="Center" Margin="0,301,0,0" VerticalAlignment="Top" Width="74" Background="#FFF13737" Click="btnDeleteLift_Click"/>
         </Grid>
-        <Button x:Name="btnLiftkort" Content="Liftkort" HorizontalAlignment="Left" Margin="419,0,0,0" VerticalAlignment="Top" Height="52 " Width="132" Click="btnLiftkort_Click"/>
-        <Button x:Name="btnDelete" Content="Radera" HorizontalAlignment="Left" Margin="685,0,0,0" VerticalAlignment="Top" Height="52" Width="115" Click="btnDelete_Click"/>
-        <Button x:Name="btnRides" Content="Registrera åk" HorizontalAlignment="Left" Margin="551,0,0,0" VerticalAlignment="Top" Height="52" Width="134" Click="btnRides_Click"/>
-        <Button x:Name="btnSimulateDay" Content="Simulera dag" Click="OnButtonSimulateDayClick" Margin="0,0,650,408"/>
-        <Button x:Name="btnSimulateSeason" Content="Simulera säsong" Margin="0,26,650,382" Click="OnButtonSimulateSeasonClick"/>
+        <Button x:Name="btnLiftkort" Content="Liftkort" HorizontalAlignment="Left" Margin="406,0,0,0" VerticalAlignment="Top" Height="52 " Width="132" Click="btnLiftkort_Click"/>
+        <Button x:Name="btnDelete" Content="Radera" HorizontalAlignment="Left" Margin="672,0,0,0" VerticalAlignment="Top" Height="52" Width="128" Click="btnDelete_Click"/>
+        <Button x:Name="btnRides" Content="Registrera åk" HorizontalAlignment="Left" Margin="538,0,0,0" VerticalAlignment="Top" Height="52" Width="134" Click="btnRides_Click"/>
+        <Button x:Name="btnSimulator" Content="Simulator" HorizontalAlignment="Left" VerticalAlignment="Top" Height="52" Width="137" Click="btnSimulator_Click"/>
+        <Grid x:Name="Simulator" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Rectangle HorizontalAlignment="Center" Height="436" Stroke="Black" VerticalAlignment="Center" Width="800"/>
+            <Button x:Name="btnSimulateDay" Content="Simulera dag" Click="OnButtonSimulateDayClick" Margin="126,74,494,298"/>
+            <Button x:Name="btnSimulateSeason" Content ="Simulera säsong" Margin="509,74,111,297" Click="OnButtonSimulateSeasonClick" RenderTransformOrigin="0.313,0.846"/>
+            <ListBox x:Name="lstDayResults" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="21,176,400,41"/>
+            <ListBox x:Name="lstSeasonResults" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="415,176,20,41"/>
+            <TextBlock HorizontalAlignment="Left" Margin="137,150,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="158"><Run Language="sv-se" Text="Sammanställning av dag:"/></TextBlock>
+            <TextBlock HorizontalAlignment="Left" Margin="523,150,0,0" TextWrapping="Wrap" VerticalAlignment="Top" Width="158"><Run Text="Sammanställning av "/><Run Language="sv-se" Text="säsong:"/></TextBlock>
+        </Grid>
     </Grid>
 
 </Window>
