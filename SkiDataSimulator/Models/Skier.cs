@@ -14,7 +14,7 @@ namespace SkiDataSimulator.Models
         public string Email { get; set; }
         public string Username { get; set; }
         public string? Image_url { get; set; }
-        public string FullName => Firstname + Lastname;
+        public string FullName => Firstname + " " + Lastname;
 
     }
 }

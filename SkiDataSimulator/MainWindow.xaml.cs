@@ -78,6 +78,16 @@ public partial class MainWindow : Window
             List<SkiPass> skiPasses = await _dbRepository.GetRandomSkiPassesAsync(SimulatedSkierCount);
             List<SkiRun> skiRuns = await _simulator.SimulateSeasonAsync(skiPasses, dayInSeason);
             await _dbRepository.SaveSkiRunsAsync(skiRuns);
+            string[] display = new string[skiRuns.Count];
+
+            for (int i = 0; i < skiRuns.Count; i++)
+            {
+                display[i] += "Ski pass id (" + skiRuns[i].SkipassId.ToString() + ") ";
+                display[i] += "tid (" + skiRuns[i].Timestamp.ToString() + ") ";
+                display[i] += "lift id (" + skiRuns[i].LiftId.ToString() + ")";
+            }
+
+            lstSeasonResults.ItemsSource = display;
             ShowMessage("Simulering slutförd och data sparat!", "Info");
         }
         catch (Exception ex)
