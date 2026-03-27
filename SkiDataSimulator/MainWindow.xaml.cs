@@ -184,10 +184,20 @@ public partial class MainWindow : Window
     {
         try
         {
+            
             //nu bör vi på något sätt identifiera det valda objektet kollar i labb 2
+
             Skier? skier = lstskiers.SelectedItem as Skier;
-            SkierDetailedSeason detailedskier = await _dbRepository.GetSkierDetailedSeason(skier.Id);
+
+            if (skier is not Skier)
+            {
+                return;
+            }
+
+            SkierDetailedSeason? detailedskier = await _dbRepository.GetSkierDetailedSeason(skier.Id);
             SkierLeaderboardDetails leaderboardDetails = await _dbRepository.GetLeaderboardDetails(skier.Id);
+
+            
 
             txtUser.Text = skier.Username;
             txtFirst.Text = skier.Firstname;
@@ -432,7 +442,7 @@ public partial class MainWindow : Window
                     
                     else if (destination.Id == skipass.DestinationId && DateOnly.Parse(DateTime.Now.ToString("D")) <= skipass.ValidTo && DateOnly.Parse(DateTime.Now.ToString("D")) >= skipass.ValidFrom)
                     {
-                        bool svar = await _dbRepository.RegisterRideByLift(skipass.Id, lift.Id, season.Id, DateTime.Now);
+                        bool svar = await _dbRepository.RegisterRideByLift(skipass.Id, lift.Id, season.Id, DateTime.Now); 
 
                         if (svar == true) { MessageBox.Show($"Du har registrerat åk i {lift.Name}"); }
                     }
@@ -442,13 +452,6 @@ public partial class MainWindow : Window
                     MessageBox.Show("Liftkortsnumret du angav tillhör ingen skidåkare.");
                     return;
                 }
-                //SkiRun skirun = new SkiRun
-                //{
-                //    SkipassId = skipass.Id,
-                //    LiftId = lift.Id,
-                //    SeasonId = season.Id,
-                //    Timestamp = DateTime.Now
-                //};
 
                 //För datumen https://stackoverflow.com/questions/5672862/check-if-datetime-instance-falls-in-between-other-two-datetime-objects
 
@@ -467,7 +470,7 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(exception.Message);
         }
-        //Nu saknar vi bara kontrollerna, destinationId och att kortet är giltigt, tänker att vi gör en select och sedan typ (om det är null så kör vi inte inserten).
+        
         
     }
 
