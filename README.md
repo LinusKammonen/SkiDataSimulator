@@ -18,7 +18,7 @@ Den skapar slumpmässiga skiddagar och skidåkningar per åkare och hanterar oli
 Dbrepository hanterar metoder som hämtar och matar in data i databasen.
 DbExceptions hanterar felmeddelanden utöver de som applikationen hanterar
 
-# Models
+## Models
 Klasserna som motsvarar tabellerna i databasen
 
 ## Viktig information innan ni kör applikationen
