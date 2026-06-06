@@ -185,8 +185,6 @@ public partial class MainWindow : Window
         try
         {
             
-            //nu bör vi på något sätt identifiera det valda objektet kollar i labb 2
-
             Skier? skier = lstskiers.SelectedItem as Skier;
 
             if (skier is not Skier)
@@ -196,8 +194,6 @@ public partial class MainWindow : Window
 
             SkierDetailedSeason? detailedskier = await _dbRepository.GetSkierDetailedSeason(skier.Id);
             SkierLeaderboardDetails leaderboardDetails = await _dbRepository.GetLeaderboardDetails(skier.Id);
-
-            
 
             txtUser.Text = skier.Username;
             txtFirst.Text = skier.Firstname;
@@ -470,8 +466,7 @@ public partial class MainWindow : Window
         {
             MessageBox.Show(exception.Message);
         }
-        
-        
+
     }
 
     private async void btnDelete_Click(object sender, RoutedEventArgs e)

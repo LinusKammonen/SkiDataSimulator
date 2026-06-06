@@ -54,10 +54,6 @@ public class DbRepository
                 throw DbExceptions.Translate(exception);
         }
         
-            /* Här ska ni hämta en slumpmässig lift som skidåkaren åker i en viss anläggning
-             * Hur slumpar man? Ett tips är att hämta alla id för liftar och lägga i en array som
-             * ni sedan slumpar värden från och returnerar
-             */
     }
     public async Task<SkierDetailedSeason?> GetSkierDetailedSeason(int id)
     {
@@ -633,11 +629,6 @@ public class DbRepository
     public async Task<List<SkiPass>> GetRandomSkiPassesAsync(int numberOfSkipasses)
     {
 
-        /* Om ni vill simulera att säg 20 skidåkare åker en dag i alla anläggningar
-         * då måste ni hitta 20 lifkort från databasen. Ni behöver inte ta hänsyn till
-         * gilgithetsdatumet om ni inte vill
-         * Kika gärna på ORDER BY RANDOM() i PostgreSQL
-         */
         try
         {
             string query = "SELECT * FROM ski_pass ORDER BY RANDOM() LIMIT @number";
@@ -682,10 +673,7 @@ public class DbRepository
     }
     public async Task<Resort> GetRandomResortAsync()
     {
-        /*  Leta upp en slumpmässig anläggning (resort)
-             *  Här kan ni använda er av slumpgeneratorn som finns inbyggd i PostgreSQL
-             *  ORDER BY RANDOM()
-             */
+        
         try
         {
             string query = "SELECT * FROM resort ORDER BY RANDOM() LIMIT 1";
@@ -722,9 +710,7 @@ public class DbRepository
     }
     public async Task<Season> GetSeasonByDateAsync(DateTime date)
     {
-        /* Vilken säsong är egentligen 2023-12-08 eller 2021-04-01
-             * Det ska ni kontrollera i er databas or returnera
-             */
+        
         try
         {
             string query = "SELECT * FROM season WHERE @date BETWEEN start_date AND end_date";
@@ -766,9 +752,7 @@ public class DbRepository
 
     public async Task<bool> SaveSkiRunsAsync(List<SkiRun> skiRuns)
     {
-        /* Skicka in alla åk som har genererats till databasen med 
-             * hjälp av SQL-frågor
-             */
+        
         try
         {
             for (int i = 0; i < skiRuns.Count; i++)
