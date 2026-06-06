@@ -3,8 +3,11 @@
 ## Introduktion
 Skolprojekt i kursen datamodellering och databaser. En applikation och databas som simulerar skidåk, hanterar liftkort, destinationer, skidresort och skidåkare. 
 Detta repository innehåller följande filer och dokument som står till grund för arbetet: 
+
 -SQL frågor
+
 -Databas backup
+
 -wpf applikation
 
 ## Översikt
