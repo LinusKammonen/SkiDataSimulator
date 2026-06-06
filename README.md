@@ -1,20 +1,20 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/jKAh_LNO)
-# SkiSimulator - Skidåkningssimulering
+# SkiSimulator - C# wpf applikation & databas som hanterar skidåkare.
 
-## 📌 Översikt
+## Översikt
 SkiSimulator är en klass som används för att simulera skidsäsonger eller skiddagar.
-
 Den skapar slumpmässiga skiddagar och skidåkningar per åkare och hanterar olika faktorer som säsonger, liftval och åktider.
 
-## 🏗️ Installation & Användning
-SkiSimulator behöver en instans av `DbRepository` som hanterar databasoperationer.
+## Repositories
+Dbrepository hanterar metoder som hämtar och matar in data i databasen.
+DbExceptions hanterar felmeddelanden utöver de som applikationen hanterar
 
-## 🛠️ Viktig information innan ni kör applikationen
+# Models
+Klasserna som motsvarar tabellerna i databasen
 
-Innan ni kör er applikation måste ni:
+## Viktig information innan ni kör applikationen
 
-✅ Skapa alla tabeller i databasen.
-✅ Fyll tabellerna med testdata för att säkerställa att systemet fungerar korrekt.
+Innan applikationen körs måste databasen återskapas via backupen som ligger i repot. 
+Det är en PostgreSQL databas skapad i PGadmin.
 
-💡 Tips: Se till att er databasanslutning är korrekt konfigurerad innan ni startar applikationen.
+💡 Tips: Se till att databasanslutningen är korrekt konfigurerad innan ni startar applikationen.
 
