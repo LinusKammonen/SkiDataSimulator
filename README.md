@@ -10,7 +10,7 @@ Detta repository innehåller följande filer och dokument som står till grund f
 
 -wpf applikation
 
-## Översikt
+## Simulatorn
 SkiSimulator är en klass som används för att simulera skidsäsonger eller skiddagar.
 Den skapar slumpmässiga skiddagar och skidåkningar per åkare och hanterar olika faktorer som säsonger, liftval och åktider.
 
