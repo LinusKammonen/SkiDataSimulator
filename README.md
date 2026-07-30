@@ -24,7 +24,6 @@ Klasserna som motsvarar tabellerna i databasen
 ## Viktig information innan ni kör applikationen
 
 Innan applikationen körs måste databasen återskapas via backupen som ligger i repot. 
-Det är en PostgreSQL databas skapad i PGadmin.
 
 💡 Tips: Se till att databasanslutningen är korrekt konfigurerad innan ni startar applikationen.
 
