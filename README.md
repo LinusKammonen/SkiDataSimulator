@@ -1,4 +1,4 @@
-# SkiSimulator - C# wpf applikation & databas som hanterar skidåkare.
+# SkiSimulator - Applikation & databas som hanterar skidåkare.
 
 ## Introduktion
 Skolprojekt i kursen datamodellering och databaser. En applikation och databas som simulerar skidåk, hanterar liftkort, destinationer, skidresort och skidåkare. 
